@@ -17,9 +17,11 @@ public class KissConfig {
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("kissmod.json");
 
     public String kissMessage = "%s Kissed you!";
+    public String kissPromptMessage = "Your Kissed %s";
     public int commandCooldown = 10; // in seconds
     public int maxSneakParticles = 6;
     public double sneakTriggerRadius = 5.0;
+    public boolean enableKissCommand = true;
 
     public static KissConfig load() {
         File configFile = CONFIG_PATH.toFile();

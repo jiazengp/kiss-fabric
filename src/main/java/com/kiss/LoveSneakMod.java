@@ -23,7 +23,7 @@ public class LoveSneakMod implements ModInitializer {
 	private static final int TIME_WINDOW_TICKS = 40;
 	public static final String MOD_ID = "kissmod";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-
+	public boolean enableKissCommand = true;
 	private KissConfig config;
 
 	private static class SneakData {

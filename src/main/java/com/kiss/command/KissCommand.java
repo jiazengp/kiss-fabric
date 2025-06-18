@@ -13,6 +13,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
@@ -30,6 +31,8 @@ public class KissCommand {
     }
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
+        if (!config.enableKissCommand) return;
+
         dispatcher.register(CommandManager.literal("kiss")
                 .then(CommandManager.argument("player", EntityArgumentType.player())
                         .executes(KissCommand::executeKiss)
@@ -64,8 +67,12 @@ public class KissCommand {
         }
 
         // Send the kiss message
-        String message = config.kissMessage.replace("%s", sourcePlayer.getName().toString());
-        targetPlayer.sendMessage(Text.literal(message).formatted(Formatting.LIGHT_PURPLE), false);
+        Text kissMessage = buildMessage(config.kissMessage, sourcePlayer.getDisplayName(), Formatting.LIGHT_PURPLE);
+        Text kissPromptMessage = buildMessage(config.kissPromptMessage, targetPlayer.getDisplayName(), Formatting.GRAY);
+        sourcePlayer.playSound(net.minecraft.sound.SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+        targetPlayer.playSound(net.minecraft.sound.SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+        targetPlayer.sendMessage(kissMessage, false);
+        sourcePlayer.sendMessage(kissPromptMessage, false);
 
         // Spawn heart particles
         ServerWorld world = sourcePlayer.getServerWorld();
@@ -78,5 +85,14 @@ public class KissCommand {
         lastKissTimes.put(sourceUUID, currentTime);
 
         return Command.SINGLE_SUCCESS;
+    }
+
+    private static MutableText buildMessage(String template, Text playerName, Formatting color) {
+        String[] parts = template.split("%s", -1);
+        MutableText result = Text.literal(parts[0]);
+        for (int i = 1; i < parts.length; i++) {
+            result = result.append(playerName).append(Text.literal(parts[i]));
+        }
+        return result.formatted(color);
     }
 }
