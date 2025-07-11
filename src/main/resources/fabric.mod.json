@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "kiss",
+	"version": "${version}",
+	"name": "Kiss",
+	"description": "Lightweight mod that spawns heart particles above the player who rapidly crouches near others — a simple gesture of friendliness.",
+	"authors": [
+		"Hyouka233"
+	],
+	"contact": {
+		"homepage": "https://www.mcmod.cn/class/20582.html",
+		"sources": "https://github.com/jiazengp/kiss-fabric",
+		"issues": "https://github.com/jiazengp/kiss-fabric/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/comkiss/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.kiss.LoveSneakMod"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"minecraft": ">=1.21.6",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
