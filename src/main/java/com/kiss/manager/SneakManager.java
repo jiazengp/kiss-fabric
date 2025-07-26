@@ -2,7 +2,6 @@ package com.kiss.manager;
 
 import com.kiss.config.KissConfig;
 import com.kiss.data.PlayerSneakData;
-import com.kiss.utils.FakePlayerHelper;
 import com.kiss.utils.KissUtils;
 import com.kiss.utils.PermissionChecker;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
