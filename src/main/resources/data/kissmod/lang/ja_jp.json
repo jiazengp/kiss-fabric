@@ -1,0 +1,6 @@
+{
+  "kissmod.messages.kiss": "%sがあなたにキスしました！",
+  "kissmod.messages.kissPromptMessage": "あなたは %sにキスしました",
+  "kissmod.messages.selfKissErrorMessage": "自分自身にキスはできません！",
+  "kissmod.messages.cooldownErrorMessage": "再度キスするまで %d 秒待つ必要があります！"
+}

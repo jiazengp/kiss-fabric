@@ -1,0 +1,6 @@
+{
+  "kissmod.messages.kiss": "%s heeft je gekust!",
+  "kissmod.messages.kissPromptMessage": "Je hebt %s gekust",
+  "kissmod.messages.selfKissErrorMessage": "Je kunt jezelf niet kussen!",
+  "kissmod.messages.cooldownErrorMessage": "Je moet %d seconden wachten voordat je weer kunt kussen!"
+}

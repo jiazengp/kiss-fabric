@@ -1,0 +1,6 @@
+{
+  "kissmod.messages.kiss": "%s 親了你一下！",
+  "kissmod.messages.kissPromptMessage": "你親了 %s 一下",
+  "kissmod.messages.selfKissErrorMessage": "你不能親自己！",
+  "kissmod.messages.cooldownErrorMessage": "你必須等待 %d 秒才能再次親吻！"
+}

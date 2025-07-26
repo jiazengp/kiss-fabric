@@ -1,0 +1,6 @@
+{
+  "kissmod.messages.kiss": "%s sana öpücük verdi!",
+  "kissmod.messages.kissPromptMessage": "%s'i öptün",
+  "kissmod.messages.selfKissErrorMessage": "Kendini öpemezsin!",
+  "kissmod.messages.cooldownErrorMessage": "Tekrar öpmeden önce %d saniye beklemelisin!"
+}

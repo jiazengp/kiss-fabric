@@ -48,7 +48,7 @@ public class KissUtils {
     }
 
     public static boolean isPlayerInvisible(ServerPlayerEntity player) {
-        return (player.isSpectator() || player.hasStatusEffect(StatusEffects.INVISIBILITY));
+        return (player.isSpectator() || player.hasStatusEffect(StatusEffects.INVISIBILITY) || FakePlayerHelper.isFakePlayer(player));
     }
 
     public static boolean hasVisibleNearbyPlayers(ServerPlayerEntity player, ServerWorld world, double radius, double maxViewAngleDegree) {
@@ -125,22 +125,5 @@ public class KissUtils {
                 offset, offset, offset,
                 speed
         );
-    }
-
-    public static void sendError(ServerCommandSource source, String message, Formatting color) {
-        source.sendError(Text.literal(message).formatted(color));
-    }
-
-    public static MutableText buildMessage(String template, Text playerName, Formatting color) {
-        try {
-            String[] parts = template.split("%s", -1);
-            MutableText result = Text.literal(parts[0]);
-            for (int i = 1; i < parts.length; i++) {
-                result = result.append(playerName).append(Text.literal(parts[i]));
-            }
-            return result.formatted(color);
-        } catch (Exception e) {
-            return Text.literal(playerName.getString() + " ❤").formatted(color);
-        }
     }
 }

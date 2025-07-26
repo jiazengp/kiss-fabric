@@ -1,0 +1,6 @@
+{
+  "kissmod.messages.kiss": "Ο %s σας φίλησε!",
+  "kissmod.messages.kissPromptMessage": "Φιλήσατε τον/την %s",
+  "kissmod.messages.selfKissErrorMessage": "Δεν μπορείτε να φιλήσετε τον εαυτό σας!",
+  "kissmod.messages.cooldownErrorMessage": "Πρέπει να περιμένετε %d δευτερόλεπτα πριν φιλήσετε ξανά!"
+}

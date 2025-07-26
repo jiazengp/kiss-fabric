@@ -11,8 +11,6 @@ A lightweight server-side mod that spawns heart particles above the player who r
 
 ## Default Config
 
-In config folder.
-
 `kissmod.json`
 
 ```jsonc

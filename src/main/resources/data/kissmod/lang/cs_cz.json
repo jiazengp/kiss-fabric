@@ -1,0 +1,6 @@
+{
+  "kissmod.messages.kiss": "%s tě políbil(a)!",
+  "kissmod.messages.kissPromptMessage": "Políbil(a) jsi %s",
+  "kissmod.messages.selfKissErrorMessage": "Nemůžeš políbit sám sebe!",
+  "kissmod.messages.cooldownErrorMessage": "Musíš počkat %d sekund než budeš moct znovu políbit!"
+}

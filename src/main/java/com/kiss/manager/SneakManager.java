@@ -2,7 +2,9 @@ package com.kiss.manager;
 
 import com.kiss.config.KissConfig;
 import com.kiss.data.PlayerSneakData;
+import com.kiss.utils.FakePlayerHelper;
 import com.kiss.utils.KissUtils;
+import com.kiss.utils.PermissionChecker;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -72,6 +74,7 @@ public final class SneakManager {
 
     private void handleSneak(ServerPlayerEntity player, int currentTick) {
         if (KissUtils.isPlayerInvisible(player)) return;
+        if (!PermissionChecker.hasPermission(player, "trigger", 0)) return;
 
         UUID id = player.getUuid();
         PlayerSneakData d = dataMap.computeIfAbsent(id, unused -> new PlayerSneakData());
@@ -84,7 +87,6 @@ public final class SneakManager {
         d.setWasSneaking(nowSneaking);
     }
 
-    /** 第一次侦测到新的蹲下动作 **/
     private void processSneakToggle(ServerPlayerEntity player, int tick, PlayerSneakData playerSneakData) {
         int delta = tick - playerSneakData.lastTick();
         playerSneakData.setLastTick(tick);
@@ -93,8 +95,9 @@ public final class SneakManager {
         boolean triggered = playerSneakData.count() >= config.sneakTriggerCount;
         Entity nearest = KissUtils.getNearestAffectedMob(player, player.getWorld(),
                 config.mobTriggerRadius, DEFAULT_AFFECTED_MOBS);
+        boolean hasLongSneakingPlayer = allNearbyPlayersAreLongSneaking(player, config.mobTriggerRadius, tick, config.sneakLongThreshold);
 
-        if (triggered) {
+        if (triggered && !hasLongSneakingPlayer) {
             playerSneakData.increaseParticleLevel(config.maxSneakParticles);
 
             spawnHeartParticles(player, Math.clamp(config.sneakTriggerRadius / 2, 2, 16), playerSneakData.particleLevel() + 1, 0.3, 0.1);
@@ -102,9 +105,31 @@ public final class SneakManager {
 
             playerSneakData.resetCount();
         } else {
-            spawnHeartParticles(player, config.sneakTriggerRadius, 1, 0.1, 0.05);
+            if (!hasLongSneakingPlayer) spawnHeartParticles(player, config.sneakTriggerRadius, 1, 0.1, 0.05);
             if (nearest != null) spawnHeartParticles(player.getWorld(), nearest, 1, -0.2, 0.3, 0.1);
         }
+    }
+
+    private boolean allNearbyPlayersAreLongSneaking(ServerPlayerEntity self, double radius, int currentTick, int longSneakThreshold) {
+        double radiusSq = radius * radius;
+        ServerWorld world = self.getWorld();
+
+        for (ServerPlayerEntity other : world.getPlayers()) {
+            if (other == self || other.isSpectator()) continue;
+            if (self.squaredDistanceTo(other) > radiusSq) continue;
+
+            PlayerSneakData data = dataMap.get(other.getUuid());
+            if (data == null) continue;
+
+            boolean sneaking = other.isSneaking();
+            boolean longSneaking = (currentTick - data.lastTick()) >= longSneakThreshold;
+
+            if (!sneaking || !longSneaking) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void spawnHeartParticles(ServerPlayerEntity player, double sneakTriggerRadius, int amount, double... offsets) {

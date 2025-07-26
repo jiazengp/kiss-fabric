@@ -1,0 +1,6 @@
+{
+  "kissmod.messages.kiss": "%s t'a embrassé !",
+  "kissmod.messages.kissPromptMessage": "Vous avez embrassé %s",
+  "kissmod.messages.selfKissErrorMessage": "Vous ne pouvez pas vous embrasser vous-même !",
+  "kissmod.messages.cooldownErrorMessage": "Vous devez attendre %d secondes avant de pouvoir embrasser à nouveau !"
+}

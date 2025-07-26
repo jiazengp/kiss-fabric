@@ -1,0 +1,15 @@
+on:
+  push:
+    paths:
+      - 'README.md'
+
+jobs:
+  modrinth-desc:
+    if: github.ref == 'refs/heads/${{ github.event.repository.default_branch }}'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: funnyboy-roks/modrinth-auto-desc@v1.5
+        with:
+          auth-token: ${{ secrets.MODRINTH_AUTH_TOKEN }}
+          slug: '625eK1Si'

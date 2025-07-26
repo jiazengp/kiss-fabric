@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 1,
-	"id": "kiss",
+	"id": "kissmod",
 	"version": "${version}",
 	"name": "Kiss",
 	"description": "Lightweight mod that spawns heart particles above the player who rapidly crouches near others — a simple gesture of friendliness.",
@@ -21,9 +21,12 @@
 		]
 	},
 	"depends": {
-		"fabricloader": ">=0.16.10",
-		"minecraft": ">=1.21.6",
+		"fabricloader": ">=${fabric_loader_version}",
+		"minecraft": ">=${minecraft_version}",
 		"java": ">=21",
 		"fabric-api": "*"
+	},
+	"suggests": {
+		"luckperms": "*"
 	}
 }

@@ -1,0 +1,6 @@
+{
+  "kissmod.messages.kiss": "%s 錫咗你一下！",
+  "kissmod.messages.kissPromptMessage": "你錫咗 %s 一下",
+  "kissmod.messages.selfKissErrorMessage": "你唔可以錫自己！",
+  "kissmod.messages.cooldownErrorMessage": "你要等 %d 秒先可以再錫！"
+}

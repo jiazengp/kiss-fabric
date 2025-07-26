@@ -1,0 +1,5 @@
+{
+  "kissmod.messages.kiss": "%s đã hôn bạn!",
+  "kissmod.messages.kissPromptMessage": "Bạn đã hôn %s",
+  "kissmod.messages.selfKissErrorMessage": "Bạn không thể tự hôn chính mình!",
+  "kissmod.messages.cooldownErrorMessage": "Bạn phải đợi %d giây trước khi hôn lần nữa!"

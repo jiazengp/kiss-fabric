@@ -1,0 +1,6 @@
+{
+  "kissmod.messages.kiss": "%s поцілував(ла) вас!",
+  "kissmod.messages.kissPromptMessage": "Ви поцілували %s",
+  "kissmod.messages.selfKissErrorMessage": "Ви не можете поцілувати себе!",
+  "kissmod.messages.cooldownErrorMessage": "Ви повинні зачекати %d секунд(и) перед наступним поцілунком!"
+}

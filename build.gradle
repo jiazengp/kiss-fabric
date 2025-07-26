@@ -1,9 +1,10 @@
 plugins {
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+	id "com.modrinth.minotaur" version "2.+"
 }
 
-version = project.mod_version
+version = project.mod_version + "+" + project.minecraft_version
 group = project.maven_group
 
 base {
@@ -11,11 +12,12 @@ base {
 }
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
+	maven {
+		url "https://maven.nucleoid.xyz/"
+	}
+
+	mavenCentral()
+	mavenLocal()
 }
 
 loom {
@@ -38,14 +40,22 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	
+
+	modImplementation include("xyz.nucleoid:server-translations-api:${project.server_translations_api_version}")
+	include(modImplementation("me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"))
+	modImplementation "me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"
 }
 
 processResources {
 	inputs.property "version", project.version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
+		expand (
+				"minecraft_version": minecraft_version,
+				"fabric_loader_version": loader_version,
+				"version": inputs.properties.version
+		)
+
 	}
 }
 
@@ -86,5 +96,23 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
+	}
+}
+
+if (System.getenv("MODRINTH")) {
+	modrinth {
+		token = System.getenv("MODRINTH")
+		projectId = project.modrinth_id
+		versionNumber = "" + version
+		versionType = "release"
+		changelog = System.getenv("CHANGELOG")
+		uploadFile = remapJar
+		gameVersions = [((String) project.minecraft_version)]
+		loaders = ["fabric", "quilt"]
+		syncBodyFrom = rootProject.file("README.md").text
+	}
+
+	remapJar {
+		finalizedBy project.tasks.modrinth
 	}
 }

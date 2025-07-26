@@ -1,0 +1,6 @@
+{
+  "kissmod.messages.kiss": "%s megcsókolt téged!",
+  "kissmod.messages.kissPromptMessage": "Megcsókoltad %s-t",
+  "kissmod.messages.selfKissErrorMessage": "Nem csókolhatod meg magad!",
+  "kissmod.messages.cooldownErrorMessage": "Várnod kell %d másodpercet, mielőtt újra csókolhatsz!"
+}

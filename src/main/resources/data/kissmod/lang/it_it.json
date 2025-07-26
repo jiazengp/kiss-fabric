@@ -1,0 +1,6 @@
+{
+  "kissmod.messages.kiss": "%s ti ha baciato!",
+  "kissmod.messages.kissPromptMessage": "Hai baciato %s",
+  "kissmod.messages.selfKissErrorMessage": "Non puoi baciare te stesso!",
+  "kissmod.messages.cooldownErrorMessage": "Devi aspettare %d secondi prima di poter baciare di nuovo!"
+}

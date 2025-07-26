@@ -1,0 +1,6 @@
+{
+  "kissmod.messages.kiss": "%s suuteli sinua!",
+  "kissmod.messages.kissPromptMessage": "Suutelit %s:ta",
+  "kissmod.messages.selfKissErrorMessage": "Et voi suudella itseäsi!",
+  "kissmod.messages.cooldownErrorMessage": "Sinun täytyy odottaa %d sekuntia ennen kuin voit suudella uudelleen!"
+}

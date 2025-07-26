@@ -2,6 +2,8 @@ package com.kiss.command;
 
 import com.kiss.config.KissConfig;
 import com.kiss.utils.KissUtils;
+import com.kiss.utils.PermissionChecker;
+import com.kiss.utils.TextUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
@@ -14,7 +16,6 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -38,6 +39,7 @@ public final class KissCommand {
         if (!config.enableKissCommand) return;
 
         dispatcher.register(CommandManager.literal("kiss")
+                .requires(ctx -> PermissionChecker.hasPermission(ctx, "command", 0))
                 .then(CommandManager.argument("player", EntityArgumentType.player())
                         .executes(KissCommand::handleKiss)
                 )
@@ -47,19 +49,16 @@ public final class KissCommand {
     private static int handleKiss(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity sourcePlayer = context.getSource().getPlayerOrThrow();
         ServerPlayerEntity targetPlayer = EntityArgumentType.getPlayer(context, "player");
+        if (sourcePlayer == null) return 0;
 
         if (KissUtils.isSamePlayer(sourcePlayer, targetPlayer)) {
-            KissUtils.sendError(context.getSource(), config.selfKissErrorMessage, Formatting.DARK_RED);
+            sourcePlayer.sendMessage(TextUtils.error(TextUtils.getTranslatableMessage("selfKissErrorMessage")));
             return 0;
         }
 
         Duration remainingCooldown = checkAndUpdateCooldown(sourcePlayer.getUuid());
         if (!remainingCooldown.isZero()) {
-            KissUtils.sendError(
-                    context.getSource(),
-                    String.format(config.cooldownErrorMessage, remainingCooldown.toSeconds()),
-                    Formatting.YELLOW
-            );
+            sourcePlayer.sendMessage(TextUtils.error(TextUtils.getTranslatableMessageWithNumber("cooldownErrorMessage", remainingCooldown.toSeconds())));
             return 0;
         }
 
@@ -82,11 +81,11 @@ public final class KissCommand {
     }
 
     private static void sendKiss(ServerPlayerEntity sourcePlayer, ServerPlayerEntity targetPlayer) {
-        Text messageToTarget = KissUtils.buildMessage(config.kissMessage, sourcePlayer.getDisplayName(), Formatting.LIGHT_PURPLE);
-        Text messageToSource = KissUtils.buildMessage(config.kissPromptMessage, targetPlayer.getDisplayName(), Formatting.GRAY);
+        Text messageToTarget = TextUtils.getTranslatableMessageWithPlayer("kiss", sourcePlayer);
+        Text messageToSource = TextUtils.info(TextUtils.getTranslatableMessageWithPlayer("kissPromptMessage", targetPlayer));
 
         sourcePlayer.sendMessage(messageToSource, false);
-        targetPlayer.sendMessage(messageToTarget, false);
+        targetPlayer.sendMessage(messageToTarget, true);
 
         sourcePlayer.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
         targetPlayer.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);

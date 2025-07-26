@@ -15,17 +15,13 @@ public class KissConfig {
             .create();
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("kissmod.json");
 
-    public String kissMessage = "%s Kissed you!";
-    public String kissPromptMessage = "You Kissed %s";
-    public String selfKissErrorMessage = "You can't kiss yourself!";
-    public String cooldownErrorMessage = "You must wait %d seconds before kissing again!";
-
     public int commandCooldown = 10; // seconds
     public int sneakTriggerCount = 3;
     public int sneakTimeWindow = 40;
     public int sneakParticleDecay = 2;
     public int maxSneakParticles = 6;
     public int mobTriggerRadius = 2;
+    public int sneakLongThreshold = 40;
 
     public double sneakTriggerRadius = 12.0;
     public double maxViewAngleDegree = 90.0;
