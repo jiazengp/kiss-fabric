@@ -105,14 +105,12 @@ if (System.getenv("MODRINTH")) {
 		projectId = project.modrinth_id
 		versionNumber = "" + version
 		versionType = "release"
-		changelog = System.getenv("CHANGELOG")
-		uploadFile = remapJar
+		changelog = System.getenv("CHANGELOG") ?: "Release:" + " " + version
+		uploadFile = remapJar.archiveFile.get().asFile
 		gameVersions = [((String) project.minecraft_version)]
 		loaders = ["fabric", "quilt"]
 		syncBodyFrom = rootProject.file("README.md").text
 	}
 
-	remapJar {
-		finalizedBy project.tasks.modrinth
-	}
+	remapJar.finalizedBy(modrinth)
 }

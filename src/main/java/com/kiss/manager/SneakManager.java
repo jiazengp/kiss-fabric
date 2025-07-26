@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.UUID;
 
 public final class SneakManager {
+    private int lastCheckedTick = 0;
+
     private final KissConfig config;
     private final Map<UUID, PlayerSneakData> dataMap = new Object2ObjectOpenHashMap<>();
 
@@ -51,9 +53,9 @@ public final class SneakManager {
 
             // 水生
             EntityType.AXOLOTL,
-            EntityType.DOLPHIN,
+            EntityType.DOLPHIN
 
-            EntityType.HAPPY_GHAST
+//            EntityType.HAPPY_GHAST
     );
 
 
@@ -62,6 +64,9 @@ public final class SneakManager {
     }
 
     public void onEndServerTick(MinecraftServer server, int tick) {
+        if ((tick - lastCheckedTick) < config.sneakCheckInterval) return;
+        lastCheckedTick = tick;
+
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             handleSneak(player, tick);
         }

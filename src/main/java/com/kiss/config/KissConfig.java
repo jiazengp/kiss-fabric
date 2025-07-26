@@ -22,6 +22,7 @@ public class KissConfig {
     public int maxSneakParticles = 6;
     public int mobTriggerRadius = 2;
     public int sneakLongThreshold = 40;
+    public int sneakCheckInterval = 2;
 
     public double sneakTriggerRadius = 12.0;
     public double maxViewAngleDegree = 90.0;
