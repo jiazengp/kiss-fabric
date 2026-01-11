@@ -92,6 +92,6 @@ public final class KissCommand {
 
         if (KissUtils.isPlayerInvisible(targetPlayer)) return;
 
-        KissUtils.spawnHeartParticlesForPlayer(targetPlayer.getWorld(), targetPlayer, HEART_PARTICLE_COUNT, 0.3, 0.1);
+        KissUtils.spawnHeartParticlesForPlayer(targetPlayer.getEntityWorld(), targetPlayer, HEART_PARTICLE_COUNT, 0.3, 0.1);
     }
 }

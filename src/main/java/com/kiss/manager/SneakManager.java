@@ -97,7 +97,7 @@ public final class SneakManager {
         playerSneakData.setCount(delta <= config.sneakTimeWindow ? playerSneakData.count() + 1 : 1);
 
         boolean triggered = playerSneakData.count() >= config.sneakTriggerCount;
-        Entity nearest = KissUtils.getNearestAffectedMob(player, player.getWorld(),
+        Entity nearest = KissUtils.getNearestAffectedMob(player, player.getEntityWorld(),
                 config.mobTriggerRadius, DEFAULT_AFFECTED_MOBS);
         boolean hasLongSneakingPlayer = allNearbyPlayersAreLongSneaking(player, config.mobTriggerRadius, tick, config.sneakLongThreshold);
 
@@ -105,18 +105,18 @@ public final class SneakManager {
             playerSneakData.increaseParticleLevel(config.maxSneakParticles);
 
             spawnHeartParticles(player, Math.clamp(config.sneakTriggerRadius / 2, 2, 16), playerSneakData.particleLevel() + 1, 0.3, 0.1);
-            if (nearest != null) spawnHeartParticles(player.getWorld(), nearest, playerSneakData.particleLevel(), -0.2, 0.3, 0.1);
+            if (nearest != null) spawnHeartParticles(player.getEntityWorld(), nearest, playerSneakData.particleLevel(), -0.2, 0.3, 0.1);
 
             playerSneakData.resetCount();
         } else {
             if (!hasLongSneakingPlayer) spawnHeartParticles(player, config.sneakTriggerRadius, 1, 0.1, 0.05);
-            if (nearest != null) spawnHeartParticles(player.getWorld(), nearest, 1, -0.2, 0.3, 0.1);
+            if (nearest != null) spawnHeartParticles(player.getEntityWorld(), nearest, 1, -0.2, 0.3, 0.1);
         }
     }
 
     private boolean allNearbyPlayersAreLongSneaking(ServerPlayerEntity self, double radius, int currentTick, int longSneakThreshold) {
         double radiusSq = radius * radius;
-        ServerWorld world = self.getWorld();
+        ServerWorld world = self.getEntityWorld();
 
         for (ServerPlayerEntity other : world.getPlayers()) {
             if (other == self || other.isSpectator()) continue;
@@ -137,9 +137,9 @@ public final class SneakManager {
     }
 
     private void spawnHeartParticles(ServerPlayerEntity player, double sneakTriggerRadius, int amount, double... offsets) {
-        if (KissUtils.hasVisibleNearbyPlayers(player, player.getWorld(),
+        if (KissUtils.hasVisibleNearbyPlayers(player, player.getEntityWorld(),
                 sneakTriggerRadius, config.maxViewAngleDegree)) {
-            KissUtils.spawnHeartParticlesForPlayer(player.getWorld(), player, amount,
+            KissUtils.spawnHeartParticlesForPlayer(player.getEntityWorld(), player, amount,
                     offsets[0], offsets[1]);
         }
     }

@@ -24,7 +24,7 @@ public class KissUtils {
     }
 
     public static Entity getNearestAffectedMob(ServerPlayerEntity player, ServerWorld world, int radius, Set<EntityType<?>> affectedMobs) {
-        Box box = Box.from(player.getPos()).expand(radius);
+        Box box = Box.from(player.getEntityPos()).expand(radius);
         Predicate<Entity> predicate = entity ->
                 affectedMobs.contains(entity.getType()) &&
                         !entity.isInvisible() &&
@@ -37,9 +37,9 @@ public class KissUtils {
         }
 
         // Find the nearest mob
-        Vec3d playerPos = player.getPos();
+        Vec3d playerPos = player.getEntityPos();
         return nearbyMobs.stream()
-                .min(Comparator.comparingDouble(mob -> mob.getPos().distanceTo(playerPos)))
+                .min(Comparator.comparingDouble(mob -> mob.getEntityPos().distanceTo(playerPos)))
                 .orElse(null);
     }
 
@@ -51,12 +51,12 @@ public class KissUtils {
         if (isPlayerInvisible(player)) return false;
 
         UUID self = player.getUuid();
-        Vec3d pos = player.getPos();
+        Vec3d pos = player.getEntityPos();
         Box area = new Box(pos.add(-radius, -6, -radius), pos.add(radius, 6, radius));
 
         for (ServerPlayerEntity other : world.getPlayers()) {
             if (!other.getUuid().equals(self)
-                    && area.contains(other.getPos())
+                    && area.contains(other.getEntityPos())
                     && KissUtils.isPlayerInViewAndCanSee(player, other, maxViewAngleDegree)) {
                 return true;
             }
@@ -65,11 +65,11 @@ public class KissUtils {
     }
 
     public static boolean isPlayerInViewAndCanSee(ServerPlayerEntity observer, ServerPlayerEntity target, double maxAngleDegree) {
-        if (!observer.getWorld().equals(target.getWorld())) return false;
+        if (!observer.getEntityWorld().equals(target.getEntityWorld())) return false;
         if (!observer.canSee(target)) return false;
 
         Vec3d lookVec = observer.getRotationVec(1.0F).normalize();
-        Vec3d dirToTarget = target.getPos().subtract(observer.getPos()).normalize();
+        Vec3d dirToTarget = target.getEntityPos().subtract(observer.getEntityPos()).normalize();
 
         double dot = lookVec.dotProduct(dirToTarget);
         double angleRad = Math.acos(dot);
@@ -103,7 +103,7 @@ public class KissUtils {
     }
 
     public static void spawnHeartParticles(ServerWorld world, Entity entity, int count, double yMargin,  double offset, double speed) {
-        Vec3d pos = entity.getPos();
+        Vec3d pos = entity.getEntityPos();
 
         double height = entity.getHeight();
         double yOffset = height + yMargin;
