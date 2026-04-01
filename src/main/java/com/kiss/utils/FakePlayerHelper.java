@@ -1,6 +1,6 @@
 package com.kiss.utils;
 
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +11,7 @@ public class FakePlayerHelper {
     private static final Map<String, Class<?>> classCache = new HashMap<>();
 
     // Check if the given object is an instance of a FakePlayer
-    public static boolean isFakePlayer(ServerPlayerEntity object) {
+    public static boolean isFakePlayer(ServerPlayer object) {
         if (object == null) {
             return false;
         }
