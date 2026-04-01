@@ -25,11 +25,11 @@ public final class LoveSneakMod implements ModInitializer {
 		KissCommand.setConfig(config);
 
 		ServerTickEvents.END_SERVER_TICK.register(server ->
-				sneakManager.onEndServerTick(server, server.getTicks())
+				sneakManager.onEndServerTick(server, server.getTickCount())
 		);
 
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
-				sneakManager.onPlayerLeave(handler.getPlayer().getUuid())
+				sneakManager.onPlayerLeave(handler.getPlayer().getUUID())
 		);
 
 		CommandRegistrationCallback.EVENT.register(KissCommand::register);

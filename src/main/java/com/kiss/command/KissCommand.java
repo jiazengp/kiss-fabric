@@ -9,13 +9,14 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.network.chat.Component;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -33,32 +34,32 @@ public final class KissCommand {
         config = newConfig;
     }
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher,
-                                CommandRegistryAccess registryAccess,
-                                CommandManager.RegistrationEnvironment environment) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher,
+                                CommandBuildContext registryAccess,
+                                Commands.CommandSelection environment) {
         if (!config.enableKissCommand) return;
 
-        dispatcher.register(CommandManager.literal("kiss")
-                .requires(ctx -> PermissionChecker.hasPermission(ctx, "command", 0))
-                .then(CommandManager.argument("player", EntityArgumentType.player())
+        dispatcher.register(Commands.literal("kiss")
+                .requires(ctx -> PermissionChecker.hasPermission(ctx, "command", PermissionLevel.ALL))
+                .then(Commands.argument("player", EntityArgument.player())
                         .executes(KissCommand::handleKiss)
                 )
         );
     }
 
-    private static int handleKiss(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerPlayerEntity sourcePlayer = context.getSource().getPlayerOrThrow();
-        ServerPlayerEntity targetPlayer = EntityArgumentType.getPlayer(context, "player");
+    private static int handleKiss(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ServerPlayer sourcePlayer = context.getSource().getPlayerOrException();
+        ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
         if (sourcePlayer == null) return 0;
 
         if (KissUtils.isSamePlayer(sourcePlayer, targetPlayer)) {
-            sourcePlayer.sendMessage(TextUtils.error(TextUtils.getTranslatableMessage("selfKissErrorMessage")));
+            sourcePlayer.sendSystemMessage(TextUtils.error(TextUtils.getTranslatableMessage("selfKissErrorMessage")));
             return 0;
         }
 
-        Duration remainingCooldown = checkAndUpdateCooldown(sourcePlayer.getUuid());
+        Duration remainingCooldown = checkAndUpdateCooldown(sourcePlayer.getUUID());
         if (!remainingCooldown.isZero()) {
-            sourcePlayer.sendMessage(TextUtils.error(TextUtils.getTranslatableMessageWithNumber("cooldownErrorMessage", remainingCooldown.toSeconds())));
+            sourcePlayer.sendSystemMessage(TextUtils.error(TextUtils.getTranslatableMessageWithNumber("cooldownErrorMessage", remainingCooldown.toSeconds())));
             return 0;
         }
 
@@ -80,18 +81,18 @@ public final class KissCommand {
         return ZERO_DURATION;
     }
 
-    private static void sendKiss(ServerPlayerEntity sourcePlayer, ServerPlayerEntity targetPlayer) {
-        Text messageToTarget = TextUtils.getTranslatableMessageWithPlayer("kiss", sourcePlayer);
-        Text messageToSource = TextUtils.info(TextUtils.getTranslatableMessageWithPlayer("kissPromptMessage", targetPlayer));
+    private static void sendKiss(ServerPlayer sourcePlayer, ServerPlayer targetPlayer) {
+        Component messageToTarget = TextUtils.getTranslatableMessageWithPlayer("kiss", sourcePlayer);
+        Component messageToSource = TextUtils.info(TextUtils.getTranslatableMessageWithPlayer("kissPromptMessage", targetPlayer));
 
-        sourcePlayer.sendMessage(messageToSource, false);
-        targetPlayer.sendMessage(messageToTarget, true);
+        sourcePlayer.sendSystemMessage(messageToSource, false);
+        targetPlayer.sendSystemMessage(messageToTarget, true);
 
-        sourcePlayer.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
-        targetPlayer.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+        sourcePlayer.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+        targetPlayer.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
 
         if (KissUtils.isPlayerInvisible(targetPlayer)) return;
 
-        KissUtils.spawnHeartParticlesForPlayer(targetPlayer.getEntityWorld(), targetPlayer, HEART_PARTICLE_COUNT, 0.3, 0.1);
+        KissUtils.spawnHeartParticlesForPlayer(targetPlayer.level(), targetPlayer, HEART_PARTICLE_COUNT, 0.3, 0.1);
     }
 }
