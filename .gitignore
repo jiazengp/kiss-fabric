@@ -17,8 +17,28 @@ out
 # gradle
 build
 .gradle
+!buildSrc/src/main/groovy/com/kissmod/build/
+!buildSrc/src/main/groovy/com/kissmod/build/VersionManifest.groovy
+!buildSrc/src/test/groovy/com/kissmod/build/
+!buildSrc/src/test/groovy/com/kissmod/build/*.groovy
+
+# vscode
+.vscode/
 
 # other
 eclipse
 run
 runs
+logs/
+*.log
+
+# python
+__pycache__/
+*.py[cod]
+
+# os
+.DS_Store
+Thumbs.db
+
+# local plans
+plans/

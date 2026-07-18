@@ -1,39 +1,209 @@
-plugins {
-    id 'multiloader-loader'
-    id 'net.neoforged.moddev'
+def kissVersion = project.ext.kissVersionData
+def neoforgeConfig = kissVersion.neoforge as Map
+def capabilities = kissVersion.capabilities.neoforge as Map
+def legacyNeoGradle = capabilities.legacyGradle
+def legacyMetadataFileName = capabilities.legacyMetadataFileName
+def legacyDependencyMetadata = capabilities.legacyDependencyMetadata
+def annotationGameTests = capabilities.annotationGameTests
+def eagerDataGameTests = capabilities.eagerDataGameTests
+def dataGameTestSource = capabilities.identifierDataGameTests
+        ? 'src/gametest-data-26/java'
+        : 'src/gametest-data/java'
+def dataGameTestSubscriberSource = capabilities.explicitSubscriberBus
+        ? 'src/gametest-data-21_5/java'
+        : 'src/gametest-data-21_8/java'
+
+apply plugin: 'multiloader-loader'
+apply plugin: legacyNeoGradle ? 'net.neoforged.gradle.userdev' : 'net.neoforged.moddev'
+
+sourceSets {
+    main {
+        java.srcDir(legacyNeoGradle ? 'src/legacy/java' : 'src/modern/java')
+        java.srcDir(capabilities.legacyTickEvent ? 'src/pre1205/java' : 'src/modernTick/java')
+        java.srcDir(capabilities.fml10 ? 'src/fml10/java' : 'src/preFml10/java')
+        // NeoGradle 20.4 only scans the main mod source for @GameTestHolder classes.
+        // Keep these classes in the development output, then exclude them from the release JAR.
+        if (annotationGameTests) {
+            java.srcDir('src/gametest-annotation/java')
+        }
+        if (eagerDataGameTests) {
+            java.srcDir(dataGameTestSource)
+            java.srcDir(dataGameTestSubscriberSource)
+        }
+        if (legacyDependencyMetadata) {
+            resources.srcDir('src/legacy/resources')
+        }
+    }
+    gametest {
+        if (annotationGameTests) {
+            resources.srcDir('src/gametest-annotation/resources')
+        } else if (eagerDataGameTests) {
+            java.srcDir(dataGameTestSource)
+            resources.srcDir('src/gametest-data/resources')
+        }
+        compileClasspath += sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.runtimeClasspath
+    }
 }
 
-neoForge {
-    version = neoforge_version
-    // Automatically enable neoforge AccessTransformers if the file exists
-    def at = project(':common').file('src/main/resources/META-INF/accesstransformer.cfg')
-    if (at.exists()) {
-        accessTransformers.from(at.absolutePath)
+tasks.named('jar') {
+    exclude 'com/kissmod/gametest/**'
+    exclude 'data/kissmod/structure/kissgametest.empty.nbt'
+    exclude 'gameteststructures/**'
+}
+
+if (annotationGameTests) {
+    sourceSets {
+        structuretools {
+            java.setSrcDirs([capabilities.legacyStructureConverter
+                    ? 'src/structuretools-legacy/java'
+                    : 'src/structuretools/java'])
+            compileClasspath += sourceSets.main.compileClasspath
+        }
     }
-    parchment {
-        minecraftVersion = parchment_minecraft
-        mappingsVersion = parchment_version
+}
+
+def gametestStructureSource = file('src/gametest-annotation/resources/data/kissmod/gameteststructures/kissgametest.empty.snbt')
+def generatedGametestStructures = layout.buildDirectory.dir('generated/gametest-structures')
+
+def generateGametestStructures = tasks.register('generateGametestStructures', JavaExec) {
+    if (annotationGameTests) {
+        dependsOn tasks.named('compileStructuretoolsJava')
+    }
+    if (annotationGameTests) {
+        classpath = sourceSets.structuretools.runtimeClasspath + configurations.runtimeClasspath
+    }
+    mainClass = 'com.kissmod.gametest.GameTestStructureConverter'
+    inputs.file(gametestStructureSource)
+    outputs.dir(generatedGametestStructures)
+    onlyIf { annotationGameTests }
+    args(
+            gametestStructureSource.absolutePath,
+            generatedGametestStructures.get().file('data/kissmod/structure/kissgametest.empty.nbt').asFile.absolutePath)
+}
+
+if (legacyNeoGradle) {
+    dependencies {
+        implementation "net.neoforged:neoforge:${neoforgeConfig.neoforge_version}"
     }
     runs {
         configureEach {
-            systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
-            ideName = "NeoForge ${it.name.capitalize()} (${project.path})" // Unify the run config names with fabric
+            modSource sourceSets.main
         }
-        client {
-            client()
-        }
-        data {
-            clientData()
-        }
+        client {}
         server {
-            server()
+            workingDirectory rootProject.file("runs/${kissVersion.id}/neoforge/server")
+        }
+        data {}
+        gameTestServer {
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+            workingDirectory rootProject.file("runs/${kissVersion.id}/neoforge/gametest")
         }
     }
-    mods {
-        "${mod_id}" {
-            sourceSet sourceSets.main
+
+    def prepareLegacyGameTestStructures = tasks.register('prepareLegacyGameTestStructures', Sync) {
+        dependsOn tasks.named('processGametestResources')
+        from(sourceSets.gametest.output.resourcesDir) {
+            include 'gameteststructures/**'
+        }
+        into(rootProject.file("runs/${kissVersion.id}/neoforge/gametest"))
+    }
+
+    tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+        dependsOn prepareLegacyGameTestStructures
+    }
+} else {
+    neoForge {
+        version = neoforgeConfig.neoforge_version
+        jarJar {
+            enabled = true
+        }
+        // Automatically enable neoforge AccessTransformers if the file exists
+        def at = project(project.ext.kissCommonProjectPath).file('src/main/resources/META-INF/accesstransformer.cfg')
+        if (at.exists()) {
+            accessTransformers.from(at.absolutePath)
+        }
+        if (kissVersion.parchment_minecraft && kissVersion.parchment_version) {
+            parchment {
+                minecraftVersion = kissVersion.parchment_minecraft
+                mappingsVersion = kissVersion.parchment_version
+            }
+        }
+        runs {
+            configureEach {
+                systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
+                ideName = "NeoForge ${it.name.capitalize()} (${project.path})" // Unify the run config names with fabric
+            }
+            client {
+                client()
+            }
+            data {
+                clientData()
+            }
+            server {
+                server()
+                gameDirectory = rootProject.file("runs/${kissVersion.id}/neoforge/server")
+            }
+            gameTestServer {
+                type = 'gameTestServer'
+                gameDirectory = rootProject.file("runs/${kissVersion.id}/neoforge/gametest")
+            }
+        }
+        mods {
+            "${mod_id}" {
+                sourceSet sourceSets.main
+                sourceSet sourceSets.gametest
+            }
         }
     }
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+tasks.matching { it.name == 'runServer' }.configureEach {
+    doFirst {
+        def eulaFile = rootProject.file("runs/${kissVersion.id}/neoforge/server/eula.txt")
+        eulaFile.parentFile.mkdirs()
+        eulaFile.text = 'eula=true\n'
+    }
+}
+
+
+def gameTestDirectory = rootProject.file("runs/${kissVersion.id}/neoforge/gametest")
+def gameTestConfigFiles = [
+        new File(gameTestDirectory, "config/${mod_id}-server.toml"),
+        new File(gameTestDirectory, "world/serverconfig/${mod_id}-server.toml")
+]
+
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    doFirst {
+        gameTestConfigFiles.each { it.delete() }
+    }
+}
+
+tasks.named('processGametestResources') {
+    if (legacyNeoGradle) {
+        from('src/gametest-annotation/resources/data/kissmod/gameteststructures') {
+            into 'gameteststructures'
+        }
+    }
+}
+
+processResources {
+    dependsOn(generateGametestStructures)
+    if (legacyDependencyMetadata) {
+        exclude 'META-INF/neoforge.mods.toml'
+        from('src/gametest-annotation/resources/data/kissmod/gameteststructures') {
+            into 'gameteststructures'
+        }
+    } else if (legacyMetadataFileName) {
+        filesMatching('META-INF/neoforge.mods.toml') {
+            name = 'mods.toml'
+        }
+    }
+    from(generatedGametestStructures)
+    from(sourceSets.gametest.resources) {
+        exclude 'pack.mcmeta'
+        exclude 'META-INF/neoforge.mods.toml'
+    }
+}

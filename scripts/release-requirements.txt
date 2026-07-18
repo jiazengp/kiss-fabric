@@ -1,0 +1,2 @@
+# HTTP transport, timeout handling, connection pooling, and multipart encoding.
+httpx==0.28.1

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "environment": "server",
+  "dependencies": [
+    {
+      "id": "fabric-api",
+      "type": "required",
+      "loaders": [
+        "fabric"
+      ],
+      "aliases": {
+        "modrinth": "P7dR8mSH",
+        "curseforge": "fabric-api"
+      }
+    }
+  ]
+}

@@ -3,12 +3,25 @@ plugins {
     id 'maven-publish'
 }
 
+def kissVersion = project.ext.kissVersionData
+def minecraftVersion = kissVersion.minecraft_version
+def minecraftVersionRange = kissVersion.minecraft_version_range
+def fabricMinecraftVersion = kissVersion.fabric_minecraft_version ?: minecraftVersion
+def javaVersion = kissVersion.java_version as Integer
+def fabricConfig = kissVersion.fabric as Map
+def neoforgeConfig = kissVersion.neoforge as Map
+def fabricApiVersion = fabricConfig.fabric_api_version
+def fabricLoaderVersion = fabricConfig.fabric_loader_version
+def neoforgeVersion = neoforgeConfig.neoforge_version
+def neoforgeLoaderVersionRange = neoforgeConfig.neoforge_loader_version_range
+def modName = project.property('mod_name').toString()
+
 base {
-    archivesName = "${mod_id}-${project.name}-${minecraft_version}"
+    archivesName = "${mod_id}-${project.name}-${minecraftVersion}"
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+    toolchain.languageVersion = JavaLanguageVersion.of(javaVersion)
     withSourcesJar()
     withJavadocJar()
 }
@@ -50,7 +63,7 @@ repositories {
     configurations."$variant".outgoing {
         capability("$group:${project.name}:$version")
         capability("$group:${base.archivesName.get()}:$version")
-        capability("$group:$mod_id-${project.name}-${minecraft_version}:$version")
+        capability("$group:$mod_id-${project.name}-${minecraftVersion}:$version")
         capability("$group:$mod_id:$version")
     }
     publishing.publications.configureEach {
@@ -60,24 +73,24 @@ repositories {
 
 sourcesJar {
     from(rootProject.file('LICENSE')) {
-        rename { "${it}_${mod_name}" }
+        rename { "${it}_${modName}" }
     }
 }
 
 jar {
     from(rootProject.file('LICENSE')) {
-        rename { "${it}_${mod_name}" }
+        rename { "${it}_${modName}" }
     }
 
     manifest {
         attributes([
-                'Specification-Title'   : mod_name,
+                'Specification-Title'   : modName,
                 'Specification-Vendor'  : mod_author,
                 'Specification-Version' : project.jar.archiveVersion,
                 'Implementation-Title'  : project.name,
                 'Implementation-Version': project.jar.archiveVersion,
                 'Implementation-Vendor' : mod_author,
-                'Built-On-Minecraft'    : minecraft_version
+                'Built-On-Minecraft'    : minecraftVersion
         ])
     }
 }
@@ -86,21 +99,20 @@ processResources {
     var expandProps = [
             'version'                      : version,
             'group'                        : project.group, //Else we target the task's group.
-            'minecraft_version'            : minecraft_version,
-            'minecraft_version_range'      : minecraft_version_range,
-            'fabric_version'               : fabric_version,
-            'fabric_loader_version'        : fabric_loader_version,
+            'minecraft_version'            : minecraftVersion,
+            'minecraft_version_range'      : minecraftVersionRange,
+            'fabric_minecraft_version'     : fabricMinecraftVersion,
+            'fabric_version'               : fabricApiVersion,
+            'fabric_loader_version'        : fabricLoaderVersion,
             'mod_name'                     : mod_name,
             'mod_author'                   : mod_author,
             'mod_id'                       : mod_id,
             'license'                      : license,
             'description'                  : project.description,
-            'neoforge_version'             : neoforge_version,
-            'neoforge_loader_version_range': neoforge_loader_version_range,
-            "forge_version": forge_version,
-            "forge_loader_version_range": forge_loader_version_range,
+            'neoforge_version'             : neoforgeVersion,
+            'neoforge_loader_version_range': neoforgeLoaderVersionRange,
             'credits'                      : credits,
-            'java_version'                 : java_version
+            'java_version'                 : javaVersion
     ]
 
     var jsonExpandProps = expandProps.collectEntries {
@@ -111,7 +123,7 @@ processResources {
         expand expandProps
     }
 
-    filesMatching(['pack.mcmeta', 'fabric.mod.json', '*.mixins.json']) {
+    filesMatching(['pack.mcmeta', 'fabric.mod.json']) {
         expand jsonExpandProps
     }
 
@@ -121,13 +133,13 @@ processResources {
 publishing {
     publications {
         register('mavenJava', MavenPublication) {
-            artifactId base.archivesName.get()
+            artifactId = base.archivesName.get()
             from components.java
         }
     }
     repositories {
         maven {
-            url System.getenv('local_maven_url')
+            url = System.getenv('local_maven_url')
         }
     }
 }

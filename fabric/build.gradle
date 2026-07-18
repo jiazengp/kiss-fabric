@@ -1,24 +1,62 @@
-plugins {
-    id 'multiloader-loader'
-    id 'fabric-loom'
-}
-dependencies {
-    minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.layered {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
+def kissVersion = project.ext.kissVersionData
+def fabricConfig = kissVersion.fabric as Map
+def fabricPermissionsApi = "me.lucko:fabric-permissions-api:${fabricConfig.fabric_permissions_api_version}"
+def capabilities = kissVersion.capabilities as Map
+def fabricCapabilities = capabilities.fabric as Map
+def unobfuscatedMappings = capabilities.unobfuscatedMappings
+
+apply plugin: 'multiloader-loader'
+apply plugin: unobfuscatedMappings ? 'net.fabricmc.fabric-loom' : 'net.fabricmc.fabric-loom-remap'
+
+sourceSets {
+    main {
+        java.srcDir(fabricCapabilities.levelTickEvent ? 'src/mc26/java' : 'src/pre26/java')
     }
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${kissVersion.minecraft_version}"
+    if (!unobfuscatedMappings) {
+        mappings loom.layered {
+            officialMojangMappings()
+            if (kissVersion.parchment_minecraft && kissVersion.parchment_version) {
+                parchment("org.parchmentmc.data:parchment-${kissVersion.parchment_minecraft}:${kissVersion.parchment_version}@zip")
+            }
+        }
+    }
+    if (unobfuscatedMappings) {
+        implementation "net.fabricmc:fabric-loader:${fabricConfig.fabric_loader_version}"
+        implementation "net.fabricmc.fabric-api:fabric-api:${fabricConfig.fabric_api_version}"
+        include(implementation(fabricPermissionsApi) { transitive = false })
+    } else {
+        modImplementation "net.fabricmc:fabric-loader:${fabricConfig.fabric_loader_version}"
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricConfig.fabric_api_version}"
+        include(modImplementation(fabricPermissionsApi) { transitive = false })
+    }
+
+    include(implementation("de.exlll:configlib-core:4.6.1"))
+    include(implementation("de.exlll:configlib-yaml:4.6.1"))
+    include(implementation("org.snakeyaml:snakeyaml-engine:2.10"))
+}
+
+fabricApi.configureTests {
+    createSourceSet = true
+    enableGameTests = true
+    enableClientGameTests = false
+    modId = "${mod_id}_testmod"
+    eula = true
+}
+
+sourceSets.named('gametest') {
+    java.setSrcDirs(fabricCapabilities.modernGameTests
+            ? ['src/gametest-modern/java']
+            : ['src/gametest-legacy/java'])
 }
 
 loom {
-    def aw = project(':common').file("src/main/resources/${mod_id}.accesswidener")
+    def aw = project(project.ext.kissCommonProjectPath).file("src/main/resources/${mod_id}.accesswidener")
     if (aw.exists()) {
         accessWidenerPath.set(aw)
-    }
-    mixin {
-        defaultRefmapName.set("${mod_id}.refmap.json")
     }
     runs {
         client {
@@ -31,7 +69,31 @@ loom {
             server()
             setConfigName('Fabric Server')
             ideConfigGenerated(true)
-            runDir('runs/server')
+            runDir(rootProject.file("runs/${kissVersion.id}/fabric/server").absolutePath)
         }
+        gameTest {
+            server()
+            setConfigName('Fabric GameTest')
+            ideConfigGenerated(true)
+            runDir(rootProject.file("runs/${kissVersion.id}/fabric/gametest").absolutePath)
+            vmArg('-Dfabric-api.gametest')
+            vmArg('-Dfabric-api.gametest.report-file=build/reports/gametest/fabric.xml')
+        }
+    }
+}
+
+tasks.named('runServer') {
+    doFirst {
+        def eulaFile = rootProject.file("runs/${kissVersion.id}/fabric/server/eula.txt")
+        eulaFile.parentFile.mkdirs()
+        eulaFile.text = 'eula=true\n'
+    }
+}
+
+def gameTestConfigDirectory = rootProject.file("runs/${kissVersion.id}/fabric/gametest/config/${mod_id}")
+
+tasks.named('runGameTest') {
+    doFirst {
+        gameTestConfigDirectory.deleteDir()
     }
 }
