@@ -1,0 +1,69 @@
+def kissVersion = project.ext.kissVersionData
+def parchmentMinecraft = kissVersion.parchment_minecraft
+def parchmentVersion = kissVersion.parchment_version
+def hasNeoForm = kissVersion.neo_form_version as boolean
+def capabilities = kissVersion.capabilities as Map
+def unobfuscatedMappings = capabilities.unobfuscatedMappings
+
+apply plugin: 'multiloader-common'
+apply plugin: hasNeoForm
+        ? 'net.neoforged.moddev'
+        : (unobfuscatedMappings ? 'net.fabricmc.fabric-loom' : 'net.fabricmc.fabric-loom-remap')
+
+sourceSets {
+    main {
+        java.srcDir(capabilities.identifierNames ? 'src/mc26/java' : 'src/pre26/java')
+    }
+}
+
+if (hasNeoForm) {
+    neoForge {
+        neoFormVersion = kissVersion.neo_form_version
+        // Automatically enable AccessTransformers if the file exists
+        def at = file('src/main/resources/META-INF/accesstransformer.cfg')
+        if (at.exists()) {
+            accessTransformers.from(at.absolutePath)
+        }
+        if (parchmentMinecraft && parchmentVersion) {
+            parchment {
+                minecraftVersion = parchmentMinecraft
+                mappingsVersion = parchmentVersion
+            }
+        }
+    }
+}
+
+dependencies {
+    if (!hasNeoForm) {
+        minecraft "com.mojang:minecraft:${kissVersion.minecraft_version}"
+        if (!unobfuscatedMappings) {
+            mappings loom.layered {
+                officialMojangMappings()
+                if (parchmentMinecraft && parchmentVersion) {
+                    parchment("org.parchmentmc.data:parchment-${parchmentMinecraft}:${parchmentVersion}@zip")
+                }
+            }
+        }
+    }
+    compileOnly "de.exlll:configlib-core:4.6.1"
+    compileOnly "de.exlll:configlib-yaml:4.6.1"
+    compileOnly "org.snakeyaml:snakeyaml-engine:2.10"
+}
+
+configurations {
+    commonJava {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    commonResources {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+}
+
+artifacts {
+    sourceSets.main.java.sourceDirectories.each { sourceDir ->
+        commonJava sourceDir
+    }
+    commonResources sourceSets.main.resources.sourceDirectories.singleFile
+}

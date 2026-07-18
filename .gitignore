@@ -1,0 +1,44 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea/*
+!.idea/scopes
+
+# gradle
+build
+.gradle
+!buildSrc/src/main/groovy/com/kissmod/build/
+!buildSrc/src/main/groovy/com/kissmod/build/VersionManifest.groovy
+buildSrc/src/test/
+
+# vscode
+.vscode/
+
+# other
+eclipse
+run
+runs
+logs/
+*.log
+
+# python
+__pycache__/
+*.py[cod]
+tests/
+
+# os
+.DS_Store
+Thumbs.db
+
+# local plans
+plans/
