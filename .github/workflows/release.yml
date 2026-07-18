@@ -83,7 +83,7 @@ jobs:
           --plan release-plan.json
           --repository '${{ github.repository }}'
       - name: Upload release plan
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: resolved-release-plan
           path: release-plan.json
@@ -144,7 +144,7 @@ jobs:
           --artifact-name '${{ matrix.artifact_name }}'
           --loader ${{ matrix.loader }}
       - name: Upload release row
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: binary-${{ matrix.version_id }}-${{ matrix.loader }}
           path: release-artifact/*
@@ -189,7 +189,7 @@ jobs:
           --recovery release-recovery/release-recovery.json
       - name: Upload publication journal
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: publication-journal-${{ needs.prepare.outputs.release_tag }}
           path: release-recovery/**
