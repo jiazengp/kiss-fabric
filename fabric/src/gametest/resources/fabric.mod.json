@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "kissmod_testmod",
+  "version": "1.0.0",
+  "name": "KissMod GameTests",
+  "environment": "server",
+  "entrypoints": {
+    "fabric-gametest": [
+      "com.kissmod.gametest.KissGameTest"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!--
+      Keep this file intentionally minimal.
+      Only suppress findings here after confirming they are framework-specific false positives
+      or accepted tradeoffs for the Minecraft modding runtime.
+    -->
+</FindBugsFilter>
