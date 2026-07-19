@@ -149,4 +149,27 @@ public final class NeoForgeKissConfig {
         List.copyOf(FRIENDLY_ENTITY_TYPES.get()),
         List.copyOf(FRIENDLY_ENTITY_TAGS.get()));
   }
+
+  /** Replace every current value and persist it through NeoForge's config specification. */
+  static void update(KissConfigData data) {
+    ENABLE_KISS_COMMAND.set(data.enableKissCommand());
+    COMMAND_COOLDOWN_SECONDS.set(data.commandCooldownSeconds());
+    KISS_MESSAGE.set(data.kissMessage());
+    KISS_PROMPT_MESSAGE.set(data.kissPromptMessage());
+    SELF_KISS_ERROR_MESSAGE.set(data.selfKissErrorMessage());
+    COOLDOWN_ERROR_MESSAGE.set(data.cooldownErrorMessage());
+    MAX_SNEAK_PARTICLES.set(data.maxSneakParticles());
+    SNEAK_PARTICLE_DECAY.set(data.sneakParticleDecay());
+    SNEAK_TRIGGER_COUNT.set(data.sneakTriggerCount());
+    SNEAK_TRIGGER_WINDOW_TICKS.set(data.sneakTriggerWindowTicks());
+    SNEAK_PREVIEW_RADIUS.set(data.sneakPreviewRadius());
+    SNEAK_TRIGGER_RADIUS.set(data.sneakTriggerRadius());
+    MAX_VIEW_ANGLE.set(data.maxViewAngle());
+    ENABLE_ENTITY_PARTICLES.set(data.enableEntityParticles());
+    ENTITY_PARTICLE_RADIUS.set(data.entityParticleRadius());
+    HEART_PARTICLE_HEIGHT_OFFSET.set(data.heartParticleHeightOffset());
+    FRIENDLY_ENTITY_TYPES.set(data.friendlyEntityTypes());
+    FRIENDLY_ENTITY_TAGS.set(data.friendlyEntityTags());
+    SPEC.save();
+  }
 }

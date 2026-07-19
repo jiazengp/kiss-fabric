@@ -9,7 +9,8 @@ import java.util.List;
 public class KissConfig {
 
   // Kiss command settings
-  @Comment("Kiss command feedback message for")
+  @Comment(
+      "Kiss command feedback message shown to the kissed player (use %s for the sender's name)")
   public String kissMessage = KissConfigDefaults.KISS_MESSAGE;
 
   public String kissPromptMessage = KissConfigDefaults.KISS_PROMPT_MESSAGE;
@@ -34,4 +35,27 @@ public class KissConfig {
   public List<String> friendlyEntityTypes =
       new ArrayList<>(KissConfigDefaults.FRIENDLY_ENTITY_TYPES);
   public List<String> friendlyEntityTags = new ArrayList<>(KissConfigDefaults.FRIENDLY_ENTITY_TAGS);
+
+  static KissConfig fromData(KissConfigData data) {
+    KissConfig config = new KissConfig();
+    config.enableKissCommand = data.enableKissCommand();
+    config.commandCooldownSeconds = data.commandCooldownSeconds();
+    config.kissMessage = data.kissMessage();
+    config.kissPromptMessage = data.kissPromptMessage();
+    config.selfKissErrorMessage = data.selfKissErrorMessage();
+    config.cooldownErrorMessage = data.cooldownErrorMessage();
+    config.maxSneakParticles = data.maxSneakParticles();
+    config.sneakParticleDecay = data.sneakParticleDecay();
+    config.sneakTriggerCount = data.sneakTriggerCount();
+    config.sneakTriggerWindowTicks = data.sneakTriggerWindowTicks();
+    config.sneakPreviewRadius = data.sneakPreviewRadius();
+    config.sneakTriggerRadius = data.sneakTriggerRadius();
+    config.maxViewAngle = data.maxViewAngle();
+    config.enableEntityParticles = data.enableEntityParticles();
+    config.entityParticleRadius = data.entityParticleRadius();
+    config.heartParticleHeightOffset = data.heartParticleHeightOffset();
+    config.friendlyEntityTypes = new ArrayList<>(data.friendlyEntityTypes());
+    config.friendlyEntityTags = new ArrayList<>(data.friendlyEntityTags());
+    return config;
+  }
 }

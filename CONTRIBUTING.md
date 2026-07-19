@@ -76,15 +76,14 @@ Run the repository checks before submitting a change:
 ./gradlew check
 ```
 
-Do not use a local root `./gradlew build` as the normal feedback loop: it executes every enabled row in one workspace and has a long GameTest/SpotBugs tail. Use focused version/loader tasks while developing. CI expands the manifest into independent matrix jobs and allows all 25 current rows to run concurrently; the GitHub account's runner limit may queue excess rows. Release publication starts only after the complete parallel build matrix succeeds.
+Do not use a local root `./gradlew build` as the normal feedback loop: it executes every enabled row in one workspace and has a long GameTest tail. Use focused version/loader tasks while developing. CI expands the manifest into independent matrix jobs and allows all 25 current rows to run concurrently; the GitHub account's runner limit may queue excess rows. Release publication starts only after the complete parallel build matrix succeeds.
 
 CI has one preflight job for manifest validation and repository-wide formatting. The version/loader matrix starts only after preflight succeeds and excludes the already-completed Spotless task from each row.
 
-`check` includes the repository-wide formatting validation once and SpotBugs for every selected version/loader project. Additional useful tasks are:
+`check` includes the repository-wide formatting validation once. Additional useful tasks are:
 
 - `./gradlew spotlessCheck` verifies formatting without changing files.
 - `./gradlew spotlessApply` applies the configured formatting rules.
-- `./gradlew spotbugsMain` runs SpotBugs on production source sets.
 
 Only one deployable main JAR should be produced for each enabled row. Sources, development, and other auxiliary JARs are not release artifacts.
 
@@ -169,7 +168,7 @@ It also expects these repository secrets:
 
 Cross-platform related-mod declarations belong in `release-metadata.json`. Dependencies are loader-scoped and use explicit Modrinth and CurseForge aliases. Fabric API is required only for Fabric release rows; NeoForge rows have no external mod dependency. Minecraft, Java, Fabric Loader, and NeoForge remain platform requirements in the JAR metadata rather than related-mod declarations.
 
-All selected artifacts are built and validated before publication begins. GitHub releases and Modrinth versions can be replaced with compensating rollback. CurseForge cannot replace, delete, or query uploaded binaries through its author token. Before pushing a release tag, manually inspect the project and delete files matching any selected external version or artifact name. If an upload response times out or fails ambiguously, inspect CurseForge manually before retrying.
+All selected artifacts are built and validated before publication begins. The transaction creates or updates one GitHub Release for the tag and attaches every selected JAR plus `SHA256SUMS.txt`; it then publishes the matching Modrinth and CurseForge files. GitHub releases and Modrinth versions can be replaced with compensating rollback. CurseForge cannot replace, delete, or query uploaded binaries through its author token. Before pushing a release tag, manually inspect the project and delete files matching any selected external version or artifact name. If an upload response times out or fails ambiguously, inspect CurseForge manually before retrying.
 
 If publication fails, inspect the uploaded `publication-journal-*` artifact for completed operations, rollback failures, and manual recovery instructions.
 

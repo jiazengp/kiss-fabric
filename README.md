@@ -20,6 +20,15 @@ KissMod is server-side. Edit the server config and restart the server to apply c
 - Fabric config path: `config/kissmod/config.yml`
 - NeoForge server config: `kissmod-server.toml` in the loader's server config location
 
+Existing values are preserved when new configuration fields are added; missing fields are written
+with their current defaults. On the first upgrade from KissMod v1, Fabric imports
+`config/kissmod.json` when the new YAML file does not exist, while NeoForge imports
+`config/kissmod-common.toml` when the new server configuration still contains only defaults. Legacy
+files are removed only after the new configuration has been written successfully. Renamed settings
+such as `commandCooldown`, `sneakTimeWindow`, `maxViewAngleDegree`, and `mobTriggerRadius` are
+mapped to their current equivalents. A current NeoForge configuration with custom values always
+takes precedence over the legacy file.
+
 ### Friendly entity particles
 
 Friendly entity particles are enabled by default for the vanilla passive and friendly entities listed in the generated config. You can disable the feature or replace the list with exact entity type IDs and entity type tags.

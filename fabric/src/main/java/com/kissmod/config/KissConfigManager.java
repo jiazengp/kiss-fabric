@@ -16,15 +16,20 @@ public class KissConfigManager {
   private static final Path CONFIG_DIR =
       Services.PLATFORM.getConfigDirectory().resolve(Constants.MOD_ID);
   private static final Path CONFIG_FILE = CONFIG_DIR.resolve("config.yml");
+  private static final Path LEGACY_CONFIG_FILE =
+      Services.PLATFORM.getConfigDirectory().resolve("kissmod.json");
   private static final Path BACKUP_DIR = CONFIG_DIR.resolve("backups");
 
   public static void loadConfig() {
     try {
       KissConfig config;
       if (!Files.exists(CONFIG_FILE)) {
-        Constants.LOG.info("Creating default configuration file...");
-        config = new KissConfig();
+        InitialConfig initial = loadLegacyConfigOrDefaults();
+        config = initial.config();
         saveConfig(config);
+        if (initial.migrated()) {
+          deleteLegacyConfig();
+        }
       } else {
         config = loadConfigWithValidation();
       }
@@ -59,10 +64,41 @@ public class KissConfigManager {
 
   private static KissConfig loadConfigWithValidation() throws IOException {
     try {
-      return YamlConfigurations.load(CONFIG_FILE, KissConfig.class);
+      // Preserve existing values and rewrite the file with defaults for newly added fields.
+      return YamlConfigurations.update(CONFIG_FILE, KissConfig.class);
     } catch (Exception e) {
       Constants.LOG.error("Failed to parse configuration file: {}", e.getMessage());
       return handleCorruptedConfig(e);
+    }
+  }
+
+  private static InitialConfig loadLegacyConfigOrDefaults() {
+    if (!Files.exists(LEGACY_CONFIG_FILE)) {
+      Constants.LOG.info("Creating default configuration file...");
+      return new InitialConfig(new KissConfig(), false);
+    }
+    try {
+      KissConfig migrated = KissConfig.fromData(FabricLegacyConfigReader.load(LEGACY_CONFIG_FILE));
+      return new InitialConfig(migrated, true);
+    } catch (Exception e) {
+      Constants.LOG.warn(
+          "Failed to migrate legacy configuration from {}; using defaults. The legacy file was left unchanged.",
+          LEGACY_CONFIG_FILE,
+          e);
+      return new InitialConfig(new KissConfig(), false);
+    }
+  }
+
+  private static void deleteLegacyConfig() {
+    try {
+      Files.deleteIfExists(LEGACY_CONFIG_FILE);
+      Constants.LOG.info(
+          "Migrated legacy configuration to {} and removed {}", CONFIG_FILE, LEGACY_CONFIG_FILE);
+    } catch (IOException e) {
+      Constants.LOG.warn(
+          "Configuration migration succeeded, but the legacy file could not be removed: {}",
+          LEGACY_CONFIG_FILE,
+          e);
     }
   }
 
@@ -106,4 +142,6 @@ public class KissConfigManager {
       throw new RuntimeException("Failed to save configuration", e);
     }
   }
+
+  private record InitialConfig(KissConfig config, boolean migrated) {}
 }

@@ -1,6 +1,7 @@
 package com.kissmod;
 
 import com.kissmod.config.KissConfigs;
+import com.kissmod.config.NeoForgeConfigManager;
 import com.kissmod.config.NeoForgeKissConfig;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -23,7 +24,7 @@ public class KissMod {
 
   @SubscribeEvent
   private void onServerAboutToStart(ServerAboutToStartEvent event) {
-    KissConfigs.update(NeoForgeKissConfig.toData());
+    KissConfigs.update(NeoForgeConfigManager.load());
     Constants.LOG.info("[KissMod] Server config snapshot built");
   }
 }

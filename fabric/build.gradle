@@ -15,6 +15,20 @@ sourceSets {
 }
 
 dependencies {
+    // Loom turns included plain libraries into nested Fabric mods and requires a
+    // three-component SemVer version. SnakeYAML publishes 2.10, so normalize only
+    // its nested-mod metadata while keeping the resolved Maven artifact at 2.10.
+    components {
+        withModule('org.snakeyaml:snakeyaml-engine') {
+            allVariants {
+                withCapabilities {
+                    removeCapability('org.snakeyaml', 'snakeyaml-engine')
+                    addCapability('org.snakeyaml', 'snakeyaml-engine', '2.10.0')
+                }
+            }
+        }
+    }
+
     minecraft "com.mojang:minecraft:${kissVersion.minecraft_version}"
     if (!unobfuscatedMappings) {
         mappings loom.layered {

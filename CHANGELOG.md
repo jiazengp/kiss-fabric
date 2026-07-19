@@ -8,11 +8,15 @@ Release notes for the legacy `v1` branch remain available in
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses semantic versioning for mod releases.
 
-## [Unreleased]
+## [2.0.0-alpha.2] - 2026-07-19
 
 ### Added
 
-- Nothing yet.
+- Fabric and NeoForge servers automatically import supported settings from their legacy v1 configuration files.
+
+### Changed
+
+- Existing configuration values are preserved while newly introduced settings are merged with their defaults.
 
 ## [2.0.0-alpha.1] - 2026-07-19
 

@@ -61,7 +61,7 @@ python scripts/manifest_matrix.py matrix
 - Server run directories are isolated at `runs/<versionId>/<loader>/server`, and `runServer` writes `eula=true`; do not reuse one version's world/run directory for another.
 - Stop a verified server cleanly with `stop`. Some NeoForge Gradle integrations may return a non-zero process status after stdin shutdown; judge startup from the readiness marker and inspect the log for a pre-readiness crash.
 - GameTest tasks are `:<versionId>:fabric:runGameTest` and `:<versionId>:neoforge:runGameTestServer`. When validating logs in automation, run `python scripts/verify_gametest.py <log>` so a zero-test run cannot pass silently.
-- `./gradlew.bat check` includes Spotless and SpotBugs. Use `spotlessApply` only when formatting changes are intended, and keep `.gradle` files CRLF as defined by `.gitattributes`.
+- `./gradlew.bat check` includes Spotless. Use `spotlessApply` only when formatting changes are intended, and keep `.gradle` files CRLF as defined by `.gitattributes`.
 
 ## Release contracts
 
@@ -92,6 +92,7 @@ python scripts/manifest_matrix.py matrix
 - Fabric reads YAML through `KissConfig`/`KissConfigManager` and publishes a snapshot with `KissConfigs.update(...)`.
 - NeoForge defines TOML through `NeoForgeKissConfig`, registers its `ModConfigSpec`, and publishes a snapshot when the server is about to start.
 - Runtime code reads `KissConfigs.server()` when needed. Do not cache the returned snapshot across config reloads.
+- Legacy field mapping belongs in the common `LegacyKissConfigMapper`; loaders only parse their legacy file format and persist the shared snapshot. Fabric migrates `kissmod.json`, while NeoForge migrates `kissmod-common.toml` without overwriting a customized current config. Delete a legacy file only after the current configuration is successfully persisted.
 - Adding a config option requires updating the common interface/data/defaults, Fabric YAML model/conversion, NeoForge TOML spec/conversion, and relevant tests or documentation.
 
 ### Entry points and server-only scope

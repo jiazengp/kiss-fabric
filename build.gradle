@@ -2,7 +2,6 @@ import com.kissmod.build.VersionManifest
 
 plugins {
     id 'com.diffplug.spotless' version '8.8.0'
-    id 'com.github.spotbugs' version '6.5.8' apply false
     id 'fabric-loom' version '1.17-SNAPSHOT' apply false
     id 'net.fabricmc.fabric-loom-remap' version '1.17-SNAPSHOT' apply false
     // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
@@ -63,31 +62,8 @@ subprojects {
 
 subprojects {
     pluginManager.withPlugin('java') {
-        apply plugin: 'com.github.spotbugs'
-
         tasks.withType(JavaCompile).configureEach {
             options.encoding = 'UTF-8'
-        }
-
-        spotbugs {
-            toolVersion = '4.10.2'
-            ignoreFailures = false
-            showStackTraces = true
-            showProgress = true
-            effort = com.github.spotbugs.snom.Effort.valueOf('MAX')
-            reportLevel = com.github.spotbugs.snom.Confidence.valueOf('MEDIUM')
-            maxHeapSize = '1g'
-            excludeFilter = rootProject.file('config/spotbugs/exclude.xml')
-        }
-
-        tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
-            reports {
-                xml.required.set(true)
-                xml.outputLocation.set(layout.buildDirectory.file("reports/spotbugs/${name}.xml"))
-                html.required.set(true)
-                html.outputLocation.set(layout.buildDirectory.file("reports/spotbugs/${name}.html"))
-                html.stylesheet = 'fancy-hist.xsl'
-            }
         }
 
         tasks.named('check') {

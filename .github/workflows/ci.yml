@@ -1,5 +1,8 @@
 name: CI
 
+env:
+  GRADLE_OPTS: --enable-native-access=ALL-UNNAMED
+
 on:
   workflow_dispatch:
   push:
@@ -9,7 +12,6 @@ on:
       - "*.gradle"
       - ".editorconfig"
       - ".gitattributes"
-      - "config/**"
       - "gradle.properties"
       - "gradle/wrapper/**"
       - "gradlew"
@@ -54,7 +56,7 @@ jobs:
       - name: Validate manifest
         run: python scripts/manifest_matrix.py validate
       - name: Check formatting
-        run: ./gradlew -PkissActiveVersion=v1_21_5 :spotlessCheck --console=plain
+        run: ./gradlew -PkissActiveVersion=v1_21_5 :buildSrc:test :spotlessCheck --console=plain
       - name: Generate manifest matrix
         id: matrix
         shell: bash

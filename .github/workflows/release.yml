@@ -1,5 +1,8 @@
 name: Release
 
+env:
+  GRADLE_OPTS: --enable-native-access=ALL-UNNAMED
+
 on:
   push:
     tags:
@@ -180,7 +183,7 @@ jobs:
           pattern: binary-*
           path: release-artifacts
           merge-multiple: true
-      - name: Publish transaction
+      - name: Publish GitHub Release, Modrinth, and CurseForge
         run: >-
           python scripts/release_transaction.py publish
           --plan release-input/release-plan.json
