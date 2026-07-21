@@ -1,39 +1,34 @@
 # KissMod
 
-## Description
-
-A lightweight server-side mod that spawns heart particles above the player who rapidly crouches near others — a simple gesture of friendliness.
+A tiny server-side mod: sneak near another player a few times and hearts pop up overhead — a small, friendly gesture.
 
 ![Cover](https://cdn.modrinth.com/data/cached_images/229f853e39181c31096cbc8252a28a401b63e409.png)
 
 ## Command
 
-- `/kiss <player>`: Allowing you to kiss other players with this command (The command can be used once every 10 seconds per player by default. The kissed player will receive a notification and heart particle effects will appear above their head.
-  )
+- `/kiss <player>` — send a kiss to another player. Each player can use it once every 10 seconds by default. The kissed player gets a heads-up and a little burst of hearts above their head.
 
-KissMod exposes `kissmod.command` for `/kiss` and `kissmod.trigger` for sneak-triggered particles. Both permissions allow all players by default and can be overridden by a compatible permissions provider.
+Two permissions are exposed by default, both granted to all players:
+
+- `kissmod.command` for `/kiss`
+- `kissmod.trigger` for the sneak-triggered hearts
+
+Override either with your permissions mod if you want to change who can use them.
 
 ## Configuration
 
-KissMod is server-side. Edit the server config and restart the server to apply changes.
+KissMod is server-side — edit the server config and restart to apply changes.
 
-- Fabric config path: `config/kissmod/config.yml`
-- NeoForge server config: `kissmod-server.toml` in the loader's server config location
+- Fabric: `config/kissmod/config.yml`
+- NeoForge: `kissmod-server.toml` in the loader's server config location
 
-Existing values are preserved when new configuration fields are added; missing fields are written
-with their current defaults. On the first upgrade from KissMod v1, Fabric imports
-`config/kissmod.json` when the new YAML file does not exist, while NeoForge imports
-`config/kissmod-common.toml` when the new server configuration still contains only defaults. Legacy
-files are removed only after the new configuration has been written successfully. Renamed settings
-such as `commandCooldown`, `sneakTimeWindow`, `maxViewAngleDegree`, and `mobTriggerRadius` are
-mapped to their current equivalents. A current NeoForge configuration with custom values always
-takes precedence over the legacy file.
+The config keeps your existing values across upgrades and fills new fields with defaults. Upgrading from KissMod v1? Your old `kissmod.json` (Fabric) or `kissmod-common.toml` (NeoForge) is imported the first time, then removed once the new file is written. A current config with custom values is never overwritten.
 
-### Friendly entity particles
+### Hearts for friendly mobs
 
-Friendly entity particles are enabled by default for the vanilla passive and friendly entities listed in the generated config. You can disable the feature or replace the list with exact entity type IDs and entity type tags.
+Hearts trigger the same way as with players: sneak rapidly nearby. By default, this also works for vanilla friendly mobs like villagers, cows, and wolves. The difference is that the hearts appear over the mob's head, not the player's.
 
-KissMod matches `friendlyEntityTypes` against the entity registry ID, so modded entities work without a KissMod-side integration as long as that mod is installed on the server.
+You can turn this off, or customize the target list with any entity type IDs or tags you like. Modded mobs are also supported as long as the mod is on the server — no extra integration needed.
 
 #### Fabric YAML example
 
@@ -91,7 +86,7 @@ friendlyEntityTags = []
 
 ## Contributing
 
-Development setup, multi-version build instructions, testing requirements, and the release process are documented in [CONTRIBUTING.md](CONTRIBUTING.md).
+If you'd like to build or release KissMod, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
