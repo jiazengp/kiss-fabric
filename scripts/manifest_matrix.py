@@ -112,6 +112,32 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
                             f"enabled loader '{loader}' in version '{version_id}' is missing '{field}'"
                         )
 
+    problems = staged_or_registered(VERSIONS_DIR, seen_ids)
+    if problems:
+        raise ValueError("\n".join(problems))
+
+
+def staged_or_registered(versions_dir: pathlib.Path, registered_ids: set[str]) -> list[str]:
+    """Return problems for versions/ directories that are neither registered nor staged."""
+    problems: list[str] = []
+    for entry in sorted(versions_dir.iterdir()):
+        if not entry.is_dir():
+            continue
+        props_path = entry / "gradle.properties"
+        if not props_path.is_file():
+            continue
+        if entry.name in registered_ids:
+            continue
+        props = parse_properties(props_path)
+        fabric_enabled = parse_boolean(props, "enable_fabric", entry.name)
+        neoforge_enabled = parse_boolean(props, "enable_neoforge", entry.name)
+        if fabric_enabled or neoforge_enabled:
+            problems.append(
+                f"version directory '{entry.name}' is not registered in versions.json "
+                "but has loaders enabled; register it or keep both loaders disabled"
+            )
+    return problems
+
 
 def iter_matrix_rows(
     manifest: dict[str, Any],

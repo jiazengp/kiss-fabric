@@ -2,6 +2,7 @@ import json
 import pathlib
 import subprocess
 import sys
+import tempfile
 import unittest
 
 from scripts import manifest_matrix
@@ -544,6 +545,56 @@ class ManifestMatrixTests(unittest.TestCase):
         license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
         self.assertIn("license=MIT", properties)
         self.assertTrue(license_text.startswith("MIT License"))
+
+    def test_unregistered_version_directory_with_enabled_loaders_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            version_dir = pathlib.Path(directory) / "versions"
+            staged = version_dir / "vstaged"
+            staged.mkdir(parents=True)
+            (staged / "gradle.properties").write_text(
+                "minecraft_version=26.3-snapshot-2\n"
+                "enable_fabric=true\n"
+                "enable_neoforge=false\n",
+                encoding="utf-8",
+            )
+            problems = manifest_matrix.staged_or_registered(version_dir, {"vtest"})
+            self.assertEqual(len(problems), 1)
+            self.assertIn("vstaged", problems[0])
+            self.assertIn("not registered", problems[0])
+
+    def test_staged_version_directory_with_disabled_loaders_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            version_dir = pathlib.Path(directory) / "versions"
+            staged = version_dir / "vstaged"
+            staged.mkdir(parents=True)
+            (staged / "gradle.properties").write_text(
+                "enable_fabric=false\nenable_neoforge=false\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                manifest_matrix.staged_or_registered(version_dir, {"vtest"}), []
+            )
+
+    def test_registered_version_directory_is_ignored(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            version_dir = pathlib.Path(directory) / "versions"
+            registered = version_dir / "vtest"
+            registered.mkdir(parents=True)
+            (registered / "gradle.properties").write_text(
+                "enable_fabric=true\nenable_neoforge=true\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                manifest_matrix.staged_or_registered(version_dir, {"vtest"}), []
+            )
+
+    def test_directory_without_gradle_properties_is_ignored(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            version_dir = pathlib.Path(directory) / "versions"
+            (version_dir / "notes").mkdir(parents=True)
+            self.assertEqual(
+                manifest_matrix.staged_or_registered(version_dir, {"vtest"}), []
+            )
 
     def test_unknown_version_id_fails(self) -> None:
         result = self.run_script("matrix", "--version-id", "missing_version")

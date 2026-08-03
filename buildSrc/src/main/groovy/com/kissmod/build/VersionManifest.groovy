@@ -60,6 +60,27 @@ final class VersionManifest {
                     ]
             ]
         }
+        Set<String> registeredIds = ((List<String>) root.versions).toSet()
+        if (versionsDir.isDirectory()) {
+            versionsDir.listFiles().sort { it.name }.each { File entry ->
+                if (!entry.isDirectory()) {
+                    return
+                }
+                File propsFile = new File(entry, 'gradle.properties')
+                if (!propsFile.isFile() || registeredIds.contains(entry.name)) {
+                    return
+                }
+                Properties props = new Properties()
+                propsFile.withInputStream { props.load(it) }
+                boolean fabricEnabled = requiredBoolean(props, 'enable_fabric')
+                boolean neoForgeEnabled = requiredBoolean(props, 'enable_neoforge')
+                if (fabricEnabled || neoForgeEnabled) {
+                    throw new GradleException(
+                            "Version directory '${entry.name}' is not registered in versions.json " +
+                            'but has loaders enabled; register it or keep both loaders disabled')
+                }
+            }
+        }
         return [versions: versions]
     }
 

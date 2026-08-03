@@ -87,6 +87,41 @@ enable_neoforge=false
         assertManifestFailure(manifestFile, 'versions.json must not contain duplicate version IDs')
     }
 
+    @Test
+    void stagedVersionDirectoryPasses() {
+        File manifestFile = writeManifest('''
+minecraft_version=1.21.5
+minecraft_version_range=[1.21.5,1.21.6)
+java_version=21
+enable_fabric=false
+enable_neoforge=false
+''')
+        File stagedDir = new File(temporaryFolder.root, 'versions/vstaged')
+        assertTrue(stagedDir.mkdirs())
+        new File(stagedDir, 'gradle.properties').text =
+                'minecraft_version=26.3-snapshot-2\njava_version=25\nenable_fabric=false\nenable_neoforge=false\n'
+
+        Map version = VersionManifest.load(manifestFile).versions[0]
+        assertEquals('vtest', version.id)
+    }
+
+    @Test
+    void unregisteredVersionDirectoryWithEnabledLoadersFails() {
+        File manifestFile = writeManifest('''
+minecraft_version=1.21.5
+minecraft_version_range=[1.21.5,1.21.6)
+java_version=21
+enable_fabric=false
+enable_neoforge=false
+''')
+        File stagedDir = new File(temporaryFolder.root, 'versions/vstaged')
+        assertTrue(stagedDir.mkdirs())
+        new File(stagedDir, 'gradle.properties').text =
+                'minecraft_version=26.3-snapshot-2\njava_version=25\nenable_fabric=true\nenable_neoforge=false\n'
+
+        assertManifestFailure(manifestFile, 'not registered in versions.json')
+    }
+
     private File writeManifest(String properties) {
         File versionDir = new File(temporaryFolder.root, 'versions/vtest')
         assertTrue(versionDir.mkdirs())
