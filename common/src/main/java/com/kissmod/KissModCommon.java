@@ -73,9 +73,9 @@ public class KissModCommon {
 
         if (hasNearbyPlayers || hasNearbyFriendlyEntities) {
           data.particleLevel = Math.min(cfg.maxSneakParticles(), data.particleLevel + 1);
-          if (hasNearbyPlayers) {
+          if (hasNearbyPlayers && data.particleLevel > 0) {
             KissUtils.spawnHeartParticles(
-                level, player, HeartParticleEffect.playerTrigger(data.particleLevel + 1));
+                level, player, HeartParticleEffect.playerTrigger(data.particleLevel));
           }
 
           spawnFriendlyEntityHeartParticles(friendlyEntities, HeartParticleEffect.FRIENDLY_TRIGGER);
