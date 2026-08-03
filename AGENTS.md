@@ -61,7 +61,7 @@ python scripts/manifest_matrix.py matrix
 - Server run directories are isolated at `runs/<versionId>/<loader>/server`, and `runServer` writes `eula=true`; do not reuse one version's world/run directory for another.
 - Stop a verified server cleanly with `stop`. Some NeoForge Gradle integrations may return a non-zero process status after stdin shutdown; judge startup from the readiness marker and inspect the log for a pre-readiness crash.
 - GameTest tasks are `:<versionId>:fabric:runGameTest` and `:<versionId>:neoforge:runGameTestServer`. When validating logs in automation, run `python scripts/verify_gametest.py <log>` so a zero-test run cannot pass silently.
-- `./gradlew.bat check` includes Spotless. Use `spotlessApply` only when formatting changes are intended, and keep `.gradle` files CRLF as defined by `.gitattributes`.
+- `./gradlew.bat check` includes Spotless. Use `spotlessApply` only when formatting changes are intended. `.gradle` files are CRLF by convention — `.gitattributes`, Spotless, and `.editorconfig` agree.
 
 ## Release contracts
 
