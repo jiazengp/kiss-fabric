@@ -48,8 +48,8 @@ dependencies {
         include(modImplementation(fabricPermissionsApi) { transitive = false })
     }
 
-    include(implementation("de.exlll:configlib-core:4.6.1"))
-    include(implementation("de.exlll:configlib-yaml:4.6.1"))
+    include(implementation("de.exlll:configlib-core:4.8.1"))
+    include(implementation("de.exlll:configlib-yaml:4.8.1"))
     include(implementation("org.snakeyaml:snakeyaml-engine:2.10"))
 }
 
