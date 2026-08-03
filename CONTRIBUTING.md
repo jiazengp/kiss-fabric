@@ -76,6 +76,12 @@ Run the repository checks before submitting a change:
 ./gradlew check
 ```
 
+The Python unit-test suite covers the manifest, release, and artifact tooling:
+
+```shell
+python -m unittest discover -s tests -v
+```
+
 Do not use a local root `./gradlew build` as the normal feedback loop: it executes every enabled row in one workspace and has a long GameTest tail. Use focused version/loader tasks while developing. CI expands the manifest into independent matrix jobs and allows all 25 current rows to run concurrently; the GitHub account's runner limit may queue excess rows. Release publication starts only after the complete parallel build matrix succeeds.
 
 CI has one preflight job for manifest validation and repository-wide formatting. The version/loader matrix starts only after preflight succeeds and excludes the already-completed Spotless task from each row.
@@ -113,7 +119,7 @@ The verification script ensures that at least one GameTest ran and that the run 
 3. Enable only loaders that have valid coordinates and a working compatibility boundary.
 4. Check `VersionCapabilities` and add or adjust a named boundary only when the new Minecraft API requires it.
 5. Extend `VersionCapabilitiesTest` for every new boundary or exact-version exception.
-6. Run the manifest and buildSrc tests.
+6. Run the manifest and buildSrc tests: `python -m unittest discover -s tests -v` and `./gradlew -PkissActiveVersion=v1_21_5 :buildSrc:test`.
 7. Build every enabled loader row for the new version.
 8. Start every enabled development server and verify its readiness marker.
 
