@@ -19,7 +19,7 @@ build
 .gradle
 !buildSrc/src/main/groovy/com/kissmod/build/
 !buildSrc/src/main/groovy/com/kissmod/build/VersionManifest.groovy
-buildSrc/src/test/
+!buildSrc/src/test/groovy/com/kissmod/build/
 
 # vscode
 .vscode/
@@ -34,7 +34,6 @@ logs/
 # python
 __pycache__/
 *.py[cod]
-tests/
 
 # os
 .DS_Store
