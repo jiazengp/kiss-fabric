@@ -15,7 +15,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 
@@ -105,7 +104,9 @@ public class KissCommand {
     lastKissTimes.put(player.getUUID(), System.currentTimeMillis());
   }
 
-  static void removeOfflinePlayerState(MinecraftServer server) {
-    lastKissTimes.keySet().removeIf(uuid -> server.getPlayerList().getPlayer(uuid) == null);
+  static void purgeExpiredCooldowns(KissServerConfig cfg) {
+    long now = System.currentTimeMillis();
+    long cooldownMillis = cfg.commandCooldownSeconds() * 1000L;
+    lastKissTimes.entrySet().removeIf(entry -> now - entry.getValue() >= cooldownMillis);
   }
 }

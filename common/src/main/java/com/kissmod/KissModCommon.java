@@ -40,7 +40,7 @@ public class KissModCommon {
     playerSneakData
         .keySet()
         .removeIf(uuid -> level.getServer().getPlayerList().getPlayer(uuid) == null);
-    KissCommand.removeOfflinePlayerState(level.getServer());
+    KissCommand.purgeExpiredCooldowns(KissConfigs.server());
   }
 
   private static void handleSneak(ServerPlayer player, ServerLevel level) {
