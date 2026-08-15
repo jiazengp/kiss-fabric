@@ -23,7 +23,7 @@ dependencies {
             allVariants {
                 withCapabilities {
                     removeCapability('org.snakeyaml', 'snakeyaml-engine')
-                    addCapability('org.snakeyaml', 'snakeyaml-engine', '2.10.0')
+                    addCapability('org.snakeyaml', 'snakeyaml-engine', '3.1.1.0')
                 }
             }
         }
@@ -50,7 +50,7 @@ dependencies {
 
     include(implementation("de.exlll:configlib-core:4.8.1"))
     include(implementation("de.exlll:configlib-yaml:4.8.1"))
-    include(implementation("org.snakeyaml:snakeyaml-engine:2.10"))
+    include(implementation("org.snakeyaml:snakeyaml-engine:3.1.1"))
 }
 
 fabricApi.configureTests {
