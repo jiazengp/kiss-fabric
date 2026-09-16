@@ -40,10 +40,10 @@ class ReleasePlanTests(unittest.TestCase):
         result = self.run_plan(TAG)
         self.assertEqual(result.returncode, 0, result.stderr)
         plan = json.loads(result.stdout)
-        self.assertEqual(len(plan["rows"]), 25)
+        self.assertEqual(len(plan["rows"]), 27)
         self.assertTrue(plan["prerelease"])
         self.assertEqual(plan["release_type"], "alpha")
-        self.assertNotIn("v26_3", {row["version_id"] for row in plan["rows"]})
+        self.assertIn("v26_3", {row["version_id"] for row in plan["rows"]})
         fabric = next(row for row in plan["rows"] if row["loader"] == "fabric")
         neoforge = next(row for row in plan["rows"] if row["loader"] == "neoforge")
         self.assertEqual(fabric["environment"], "server")
@@ -68,7 +68,7 @@ class ReleasePlanTests(unittest.TestCase):
         plan = json.loads(result.stdout)
         self.assertEqual(
             {(row["minecraft_version"], row["loader"]) for row in plan["rows"]},
-            {("26.1.2", "fabric"), ("26.2", "fabric")},
+            {("26.1.2", "fabric"), ("26.2", "fabric"), ("26.3", "fabric")},
         )
 
     def test_exact_version_selects_all_enabled_loaders(self) -> None:

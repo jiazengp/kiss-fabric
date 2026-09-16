@@ -76,4 +76,12 @@ class VersionCapabilitiesTest {
         assertTrue(capabilities.neoforge.fml10)
         assertTrue(capabilities.neoforge.eagerDataGameTests)
     }
+
+    @Test
+    void selectsModernModIconMetadataFrom263() {
+        assertTrue(VersionCapabilities.forMinecraft('26.3').neoforge.modernModIconMetadata)
+        assertTrue(VersionCapabilities.forMinecraft('26.4').neoforge.modernModIconMetadata)
+        assertFalse(VersionCapabilities.forMinecraft('26.2').neoforge.modernModIconMetadata)
+        assertFalse(VersionCapabilities.forMinecraft('1.21.11').neoforge.modernModIconMetadata)
+    }
 }

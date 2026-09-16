@@ -63,7 +63,7 @@ class ManifestMatrixTests(unittest.TestCase):
         }
         self.assertEqual(versions["v1_21_5"], "1.21.5")
         self.assertEqual(versions["v26_2"], "26.2")
-        self.assertNotIn("v26_3", versions)
+        self.assertEqual(versions["v26_3"], "26.3")
 
     def test_matrix_only_contains_enabled_loaders(self) -> None:
         result = self.run_script("matrix")
@@ -96,6 +96,8 @@ class ManifestMatrixTests(unittest.TestCase):
             ("v26_1_2", "neoforge"),
             ("v26_2", "fabric"),
             ("v26_2", "neoforge"),
+            ("v26_3", "fabric"),
+            ("v26_3", "neoforge"),
         }
         self.assertEqual(rows, expected)
         self.assertIn(("v1_21_5", "fabric"), rows)
@@ -111,7 +113,7 @@ class ManifestMatrixTests(unittest.TestCase):
         self.assertTrue(all(row["java_version"] == 25 for row in payload["include"]))
         self.assertEqual(
             {row["version_id"] for row in payload["include"]},
-            {"v26_1_2", "v26_2"},
+            {"v26_1_2", "v26_2", "v26_3"},
         )
 
     def test_matrix_rows_include_gradle_tasks(self) -> None:
@@ -136,14 +138,22 @@ class ManifestMatrixTests(unittest.TestCase):
             },
         )
 
-    def test_unreleased_versions_are_not_in_build_matrix(self) -> None:
+    def test_unreleased_minecraft_versions_are_not_in_build_matrix(self) -> None:
         result = self.run_script("matrix")
         self.assertEqual(result.returncode, 0, result.stderr)
         payload = json.loads(result.stdout)
-        self.assertNotIn(
-            "v26_3",
-            {row["version_id"] for row in payload["include"]},
-            "v26_3 is not a supported build target until an official release is selected",
+        prerelease_markers = ("snapshot", "-pre", "-rc", "alpha", "beta")
+        requested = {
+            row["minecraft_version"]
+            for row in payload["include"]
+            if any(
+                marker in row["minecraft_version"] for marker in prerelease_markers
+            )
+        }
+        self.assertEqual(
+            requested,
+            set(),
+            "a Minecraft version must be an official release before it is built",
         )
 
     def test_gametest_tasks_follow_loader_conventions(self) -> None:
