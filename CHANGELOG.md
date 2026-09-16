@@ -8,11 +8,21 @@ Release notes for the legacy `v1` branch remain available in
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses semantic versioning for mod releases.
 
-## [2.0.0-alpha.2] - 2026-07-19
+## [2.0.0-alpha.3] - 2026-09-16
 
 ### Added
 
 - Minecraft 26.3 is now supported for Fabric and NeoForge servers.
+
+### Fixed
+
+- The sneak-trigger burst honors `maxSneakParticles` instead of emitting one heart above the configured cap, and is skipped entirely when the cap is `0`.
+- The `/kiss` cooldown is no longer reset by disconnecting and reconnecting; expired entries are now pruned by elapsed time instead of by online status.
+
+## [2.0.0-alpha.2] - 2026-07-19
+
+### Added
+
 - Fabric and NeoForge servers can now import supported settings from their v1 config files automatically.
 
 ### Changed
