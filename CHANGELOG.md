@@ -12,6 +12,7 @@ and this project uses semantic versioning for mod releases.
 
 ### Added
 
+- Minecraft 26.3 is now supported for Fabric and NeoForge servers.
 - Fabric and NeoForge servers can now import supported settings from their v1 config files automatically.
 
 ### Changed

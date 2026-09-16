@@ -40,10 +40,37 @@ final class VersionCapabilities {
                         annotationGameTests      : ANNOTATION_NEOFORGE_GAMETESTS.contains(minecraftVersion),
                         eagerDataGameTests       : EAGER_NEOFORGE_DATA_GAMETESTS.contains(minecraftVersion) || minecraft26,
                         identifierDataGameTests  : identifierNames,
+                        // NeoForge 26.3 replaced the mod icon metadata key: logoFile is deprecated
+                        // in favour of iconFile/bannerFile. Older loaders reject the new keys.
+                        modernModIconMetadata    : atLeast(minecraftVersion, '26.3'),
                         explicitSubscriberBus   : minecraftVersion == '1.21.5',
                         legacyStructureConverter: minecraftVersion == '1.20.2'
                 ].asImmutable()
         ].asImmutable()
+    }
+
+    /**
+     * Compares dotted Minecraft versions numerically, so a boundary expressed as "26.3 or newer"
+     * keeps holding for later releases instead of needing a new exact-version entry.
+     */
+    private static boolean atLeast(String minecraftVersion, String minimum) {
+        List<Integer> actual = versionParts(minecraftVersion)
+        List<Integer> floor = versionParts(minimum)
+        for (int i = 0; i < Math.max(actual.size(), floor.size()); i++) {
+            int left = i < actual.size() ? actual[i] : 0
+            int right = i < floor.size() ? floor[i] : 0
+            if (left != right) {
+                return left > right
+            }
+        }
+        return true
+    }
+
+    private static List<Integer> versionParts(String version) {
+        return version.tokenize('.').collect { String part ->
+            def digits = (part =~ /^\d+/)
+            digits.find() ? (digits.group() as Integer) : 0
+        }
     }
 
     private VersionCapabilities() {}

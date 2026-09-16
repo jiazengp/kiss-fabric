@@ -7,6 +7,7 @@ def kissVersion = project.ext.kissVersionData
 def minecraftVersion = kissVersion.minecraft_version
 def minecraftVersionRange = kissVersion.minecraft_version_range
 def fabricMinecraftVersion = kissVersion.fabric_minecraft_version ?: minecraftVersion
+def neoforgeModIconProperty = kissVersion.capabilities.neoforge.modernModIconMetadata ? 'iconFile' : 'logoFile'
 def javaVersion = kissVersion.java_version as Integer
 def fabricConfig = kissVersion.fabric as Map
 def neoforgeConfig = kissVersion.neoforge as Map
@@ -111,6 +112,7 @@ processResources {
             'description'                  : project.description,
             'neoforge_version'             : neoforgeVersion,
             'neoforge_loader_version_range': neoforgeLoaderVersionRange,
+            'neoforge_mod_icon_property'   : neoforgeModIconProperty,
             'credits'                      : credits,
             'java_version'                 : javaVersion
     ]
