@@ -131,7 +131,6 @@ if (legacyNeoGradle) {
         }
         runs {
             configureEach {
-                systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
                 ideName = "NeoForge ${it.name.capitalize()} (${project.path})" // Unify the run config names with fabric
             }
             client {
@@ -146,6 +145,12 @@ if (legacyNeoGradle) {
             }
             gameTestServer {
                 type = 'gameTestServer'
+                // The mod's GameTest instances are registered with a unit codec, so they cannot be
+                // serialized when the server syncs its test registry to a joining client. A plain dev
+                // server still has the GameTest system active (dev launches set IS_RUNNING_IN_IDE), so
+                // registration is gated on this flag instead of on the run type.
+                systemProperty('kissmod.gametestServer', 'true')
+                systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
                 gameDirectory = rootProject.file("runs/${kissVersion.id}/neoforge/gametest")
             }
         }
@@ -160,11 +165,12 @@ if (legacyNeoGradle) {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+def serverEulaFile = rootProject.file("runs/${kissVersion.id}/neoforge/server/eula.txt")
+
 tasks.matching { it.name == 'runServer' }.configureEach {
     doFirst {
-        def eulaFile = rootProject.file("runs/${kissVersion.id}/neoforge/server/eula.txt")
-        eulaFile.parentFile.mkdirs()
-        eulaFile.text = 'eula=true\n'
+        serverEulaFile.parentFile.mkdirs()
+        serverEulaFile.text = 'eula=true\n'
     }
 }
 

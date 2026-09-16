@@ -11,6 +11,12 @@ public final class KissDataGameTestSubscriber {
 
   @SubscribeEvent
   public static void register(RegisterGameTestsEvent event) {
+    // These instances carry a unit codec and cannot be serialized, so they must not enter the test
+    // registry of a run that players connect to. Every development launch has the GameTest system
+    // active, so the run itself has to declare that it is the GameTest server.
+    if (!Boolean.getBoolean("kissmod.gametestServer")) {
+      return;
+    }
     KissDataGameTestBootstrap.register(event);
   }
 }

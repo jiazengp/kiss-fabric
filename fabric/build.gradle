@@ -96,11 +96,12 @@ loom {
     }
 }
 
+def fabricServerEulaFile = rootProject.file("runs/${kissVersion.id}/fabric/server/eula.txt")
+
 tasks.named('runServer') {
     doFirst {
-        def eulaFile = rootProject.file("runs/${kissVersion.id}/fabric/server/eula.txt")
-        eulaFile.parentFile.mkdirs()
-        eulaFile.text = 'eula=true\n'
+        fabricServerEulaFile.parentFile.mkdirs()
+        fabricServerEulaFile.text = 'eula=true\n'
     }
 }
 
