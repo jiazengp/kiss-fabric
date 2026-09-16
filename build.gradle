@@ -1,7 +1,7 @@
 import com.kissmod.build.VersionManifest
 
 plugins {
-    id 'com.diffplug.spotless' version '8.9.0'
+    id 'com.diffplug.spotless' version '8.10.2'
     id 'fabric-loom' version '1.17-SNAPSHOT' apply false
     id 'net.fabricmc.fabric-loom-remap' version '1.17-SNAPSHOT' apply false
     // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
