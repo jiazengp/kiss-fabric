@@ -8,7 +8,7 @@ jobs:
     if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
       - uses: funnyboy-roks/modrinth-auto-desc@v1.7
         with:
           auth-token: ${{ secrets.MODRINTH_TOKEN || secrets.MODRINTH_AUTH_TOKEN }}
