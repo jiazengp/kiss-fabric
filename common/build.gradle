@@ -47,7 +47,7 @@ dependencies {
     }
     compileOnly "de.exlll:configlib-core:4.8.1"
     compileOnly "de.exlll:configlib-yaml:4.8.1"
-    compileOnly "org.snakeyaml:snakeyaml-engine:2.10"
+    compileOnly "org.snakeyaml:snakeyaml-engine:3.2"
 }
 
 configurations {
